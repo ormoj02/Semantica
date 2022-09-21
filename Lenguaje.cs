@@ -16,6 +16,7 @@ namespace Semantica
         List<Variable> variables = new List<Variable>();
         Stack<float> stack = new Stack<float>();
 
+        Variable.TipoDato dominante;
         public Lenguaje()
         {
 
@@ -150,7 +151,7 @@ namespace Semantica
                 else
                 {
                     throw new Error("Error de sintaxis, variable duplicada <" + getContenido() + "> en linea: " + linea, log);
-                    
+
                 }
             }
             match(Tipos.Identificador);
@@ -230,11 +231,16 @@ namespace Semantica
 
         private Variable.TipoDato evaluaNumero(float resultado)
         {
-            if(resultado <= 255)
+            if (resultado % 1 != 0)
+            {
+                return Variable.TipoDato.Float;
+            }
+
+            if (resultado <= 255)
             {
                 return Variable.TipoDato.Char;
             }
-            else if(resultado <= 65535)
+            else if (resultado <= 65535)
             {
                 return Variable.TipoDato.Int;
             }
@@ -266,6 +272,8 @@ namespace Semantica
             log.Write(getContenido() + " = ");
 
             match(Tipos.Asignacion);
+            dominante = Variable.TipoDato.Char;
+
             Expresion();
             match(";");
 
@@ -273,7 +281,21 @@ namespace Semantica
             float resultado = stack.Pop();
             log.Write("= " + resultado);
             log.WriteLine();
-            modVariable(nombre, resultado);
+
+            if(dominante < evaluaNumero(resultado))
+            {
+                dominante = evaluaNumero(resultado);
+            }
+
+            if (dominante <= getTipo(nombre))
+            {
+                modVariable(nombre, resultado);
+            }
+            else
+            {
+                throw new Error("Error de semantica: no podemos asignar un valor de tipo <" +dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
+            }
+
 
         }
 
@@ -478,9 +500,11 @@ namespace Semantica
             match(",");
             match("&");
             //revisamos si es un identificador
-            if(getClasificacion() == Tipos.Identificador){
+            if (getClasificacion() == Tipos.Identificador)
+            {
                 //revisamos si la variable existe
-                if(!existeVariable(getContenido())){
+                if (!existeVariable(getContenido()))
+                {
                     throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
                 }
             }
@@ -565,6 +589,10 @@ namespace Semantica
             if (getClasificacion() == Tipos.Numero)
             {
                 log.Write(getContenido() + " ");
+                if (dominante < evaluaNumero(float.Parse(getContenido())))
+                {
+                    dominante = evaluaNumero(float.Parse(getContenido()));
+                }
                 stack.Push(float.Parse(getContenido()));
                 match(Tipos.Numero);
             }
