@@ -1,5 +1,11 @@
 Archivo: prueba.cpp
-21/09/2022 09:59:51 a. m.
-
-= = 1.5 1 + = 2.5
-Error de semantica: no podemos asignar un valor de tipo <Float> a una variable de tipo <Char> en la linea: 12
+23/09/2022 09:29:16 a. m.
+3 5 + 10 
+variables: 
+area Float 0
+radio Float 0
+pi Float 0
+resultado Float 0
+x Char 0
+a Int 0
+d Int 0

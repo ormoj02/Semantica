@@ -1,4 +1,5 @@
-﻿using System;
+﻿/* Orta Moreno Jair */
+using System;
 using System.IO;
 
 namespace Semantica

@@ -1,3 +1,4 @@
+/* Orta Moreno Jair */
 namespace Semantica
 {
     public class Variable

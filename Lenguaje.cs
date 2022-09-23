@@ -1,3 +1,4 @@
+/* Orta Moreno Jair */
 using System;
 using System.Collections.Generic;
 //Requerimiento 1.- Actualizar el dominante para variables en la expresion
@@ -163,18 +164,18 @@ namespace Semantica
             }
         }
         //Bloque de instrucciones -> {listaIntrucciones?}
-        private void BloqueInstrucciones()
+        private void BloqueInstrucciones(bool evaluacion)
         {
             match("{");
             if (getContenido() != "}")
             {
-                ListaInstrucciones();
+                ListaInstrucciones(evaluacion);
             }
             match("}");
         }
 
         //ListaInstrucciones -> Instruccion ListaInstrucciones?
-        private void ListaInstrucciones()
+        private void ListaInstrucciones(bool evaluacion)
         {
             Instruccion();
             if (getContenido() != "}")
@@ -423,12 +424,29 @@ namespace Semantica
         }
 
         //Condicion -> Expresion operador relacional Expresion
-        private void Condicion()
+        private bool Condicion()
         {
             Expresion();
-            stack.Pop();
+            string operador = getContenido();
             match(Tipos.OperadorRelacional);
             Expresion();
+            float e2 = stack.Pop();
+            float e1 = stack.Pop();
+            switch (operador)
+            {
+                case ">":
+                    return e1 > e2;
+                case "<":
+                    return e1 < e2;
+                case ">=":
+                    return e1 >= e2;
+                case "<=":
+                    return e1 <= e2;
+                case "==":
+                    return e1 == e2;
+                default:
+                    return e1 != e2;
+            }
         }
 
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
@@ -436,26 +454,26 @@ namespace Semantica
         {
             match("if");
             match("(");
-            Condicion();
+            bool validarIf = Condicion();
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones();
+                BloqueInstrucciones(validarIf);
             }
             else
             {
-                Instruccion();
+                Instruccion(validarIf);
             }
             if (getContenido() == "else")
             {
                 match("else");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones();
+                    BloqueInstrucciones(validarIf);
                 }
                 else
                 {
-                    Instruccion();
+                    Instruccion(validarIf);
                 }
             }
         }
