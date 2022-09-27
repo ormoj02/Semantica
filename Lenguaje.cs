@@ -8,6 +8,9 @@ using System.Collections.Generic;
 //                 Ejemplo: 
 //                 private float convert(float valor, String tipoDato)
 //                 deberan usar el residuo de la division %255, %65535, %4294967295(posible)
+//Requerimiento 4.- Evaluar nuevamente la condicion del if - else, while, for, do while 
+//                  con respecto al parametro que recibe 
+//Requerimiento 5.- Levantar una excepcion en Scanf cuando la captura no sea un numero
 
 
 namespace Semantica
@@ -33,6 +36,7 @@ namespace Semantica
             variables.Add(new Variable(nombre, tipo));
         }
 
+        
         private void displayVariables()
         {
             log.WriteLine();
@@ -81,6 +85,7 @@ namespace Semantica
             return 0;
         }
 
+        
         private Variable.TipoDato getTipo(string nombre)
         {
             foreach (Variable v in variables)
@@ -162,6 +167,16 @@ namespace Semantica
                 match(",");
                 Lista_identificadores(tipo);
             }
+        }
+
+        //Main      -> void main() Bloque de instrucciones
+        private void Main()
+        {
+            match("void");
+            match("main");
+            match("(");
+            match(")");
+            BloqueInstrucciones(true);
         }
         //Bloque de instrucciones -> {listaIntrucciones?}
         private void BloqueInstrucciones(bool evaluacion)
@@ -310,6 +325,8 @@ namespace Semantica
         {
             match("while");
             match("(");
+            //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
+            bool validarWhile = Condicion();
             Condicion();
             match(")");
             if (getContenido() == "{")
@@ -336,7 +353,8 @@ namespace Semantica
             }
             match("while");
             match("(");
-            Condicion();
+            //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
+            bool validarDo = Condicion();
             match(")");
             match(";");
         }
@@ -346,6 +364,8 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
+            //Requerimiento 4
+            bool validarFor = Condicion();
             Condicion();
             match(";");
             Incremento(evaluacion);
@@ -465,6 +485,7 @@ namespace Semantica
         {
             match("if");
             match("(");
+            //Requerimiento 4
             bool validarIf = Condicion();
             match(")");
             if (getContenido() == "{")
@@ -475,9 +496,11 @@ namespace Semantica
             {
                 Instruccion(validarIf);
             }
+
             if (getContenido() == "else")
             {
                 match("else");
+                //Requerimiento 4
                 if (getContenido() == "{")
                 {
                     BloqueInstrucciones(validarIf);
@@ -543,23 +566,30 @@ namespace Semantica
                     throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
                 }
             }
-            //requerimiento 2.- Si no existe la variable levanta la excepcion
-            string val = "" + Console.ReadLine();
-            //Requerimiento 5.- Modificar el valor de la variable en el scanf 
-            modVariable(getContenido(), float.Parse(val));
+             
+            if(evaluacion)
+            {
+
+                string val = "" + Console.ReadLine();
+                //Requerimiento 5.- Si el valor no es un numero, levanta la excepcion
+                //revisamos si capturamos un numero en la cadena de caracteres
+                if (float.TryParse(val, out float numero))
+                {
+                    modVariable(getContenido(), numero);
+                }
+                else
+                {
+                    //modVariable(getContenido(), 0);
+                    throw new Error("Error: No se puede asignar un valor de tipo cadena a una variable de tipo numerico " + getContenido() + " en la linea: " + linea, log);
+                }
+
+                //modVariable(getContenido(), float.Parse(val));
+                
+            }
+            
             match(Tipos.Identificador);
             match(")");
             match(";");
-        }
-
-        //Main      -> void main() Bloque de instrucciones
-        private void Main()
-        {
-            match("void");
-            match("main");
-            match("(");
-            match(")");
-            BloqueInstrucciones(true);
         }
 
         //Expresion -> Termino MasTermino
