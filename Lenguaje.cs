@@ -11,6 +11,7 @@ using System.Collections.Generic;
 //Requerimiento 4.- Evaluar nuevamente la condicion del if - else, while, for, do while 
 //                  con respecto al parametro que recibe 
 //Requerimiento 5.- Levantar una excepcion en Scanf cuando la captura no sea un numero
+//Requerimiento 6.- Ejecutar el For()
 
 
 namespace Semantica
@@ -284,13 +285,13 @@ namespace Semantica
             }
 
             match(Tipos.Identificador);
-            //Requerimiento 2.- Si no existe la variable levanta la excepcion
+            
             log.WriteLine();
             log.Write(getContenido() + " = ");
 
             match(Tipos.Asignacion);
             dominante = Variable.TipoDato.Char;
-
+            //Console.WriteLine("Dominante: " + dominante);
             Expresion();
             match(";");
 
@@ -298,11 +299,13 @@ namespace Semantica
             float resultado = stack.Pop();
             log.Write("= " + resultado);
             log.WriteLine();
-
+            //Console.WriteLine("Evalua Numero: " + evaluaNumero(resultado));
             if (dominante < evaluaNumero(resultado))
             {
+                Console.WriteLine("Dominante ahora cambiara de valor al mayor");
                 dominante = evaluaNumero(resultado);
             }
+            
 
             if (dominante <= getTipo(nombre))
             {
@@ -365,19 +368,29 @@ namespace Semantica
             match("(");
             Asignacion(evaluacion);
             //Requerimiento 4
+            //Requerimiento 6: 
+            //a) Necesito guardar la posicion del archivo de texto, guardamos esa posicion en un entero
             bool validarFor = Condicion();
-            Condicion();
-            match(";");
-            Incremento(evaluacion);
-            match(")");
-            if (getContenido() == "{")
-            {
-                BloqueInstrucciones(evaluacion);
-            }
-            else
-            {
-                Instruccion(evaluacion);
-            }
+            
+            
+            //b) Agregar un ciclo while despues de validar el for
+            //while()
+            //{
+
+                match(";");
+                Incremento(evaluacion);
+                match(")");
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones(evaluacion);
+                }
+                else
+                {
+                    Instruccion(evaluacion);
+                }
+                //c)Regresar a la posicion de lectura del archivo de texto
+                //d) sacar otro tokencon
+            //}
         }
 
         //Incremento -> Identificador ++ | --
@@ -668,8 +681,13 @@ namespace Semantica
                 {
                     throw new Error("Error de sintaxis, variable solicitada:  <" + getContenido() + "> es inexistente, en linea: " + linea, log);
                 }
-                //Requerimiento 2.- Si no existe la variable levanta la excepcion
+                
                 log.Write(getContenido() + " ");
+                if(dominante < getTipo(getContenido()))
+                {
+                    dominante = getTipo(getContenido());
+                }
+
                 //metemos la variable dentro del stack para hacer operaciones 
                 stack.Push(getValor(getContenido()));
                 //pasamos al siguiente token
@@ -711,21 +729,23 @@ namespace Semantica
                     //req 3 unidad 2
                     //ejemplo: si el casteo es char y el pop regresa un 256, 
                     //          el valor equivalente en casteo es un 0
-
-                    float val = stack.Pop();
-                    switch (getContenido())
-                    {
-                        case "int":
-                            stack.Push((int)val);
-                            break;
-                        case "float":
-                            stack.Push((float)val);
-                            break;
-                        case "char":
-                            stack.Push((char)val);
-                            break;
-                    }
+                    //llamamos al metodo convertir
+                    float valor = stack.Pop();
+                    stack.Push(convertir(valor, casteo));
+                    dominante = casteo;
                 }
+            }
+
+            float convertir(float valor, Variable.TipoDato casteo)
+            {
+                switch (casteo)
+                {
+                    case Variable.TipoDato.Char:
+                        return valor % 256;
+                    case Variable.TipoDato.Int:
+                        return valor % 65536;
+                }
+                return valor;
             }
         }
     }
