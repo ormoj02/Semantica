@@ -8,6 +8,7 @@ using System.Collections.Generic;
 //                 Ejemplo: 
 //                 private float convert(float valor, String tipoDato)
 //                 deberan usar el residuo de la division %255, %65535, %4294967295(posible)
+
 //Requerimiento 4.- Evaluar nuevamente la condicion del if - else, while, for, do while 
 //                  con respecto al parametro que recibe 
 //Requerimiento 5.- Levantar una excepcion en Scanf cuando la captura no sea un numero
@@ -330,21 +331,43 @@ namespace Semantica
             match("(");
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
             bool validarWhile = Condicion();
-            Condicion();
+            if(!evaluacion)
+            {
+                validarWhile = false;
+            }
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones(evaluacion);
+                if(validarWhile)
+                {
+                    BloqueInstrucciones(evaluacion);
+                }
+                else
+                {
+                    BloqueInstrucciones(false);
+                }
             }
             else
             {
-                Instruccion(evaluacion);
+                if (validarWhile)
+                {
+                    Instruccion(evaluacion);
+                }
+                else
+                {
+                    Instruccion(false);
+                }
             }
         }
 
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
         private void Do(bool evaluacion)
         {
+            bool validarDo = true;
+            if (!evaluacion)
+            {
+                validarDo = false;
+            }
             match("do");
             if (getContenido() == "{")
             {
@@ -357,7 +380,8 @@ namespace Semantica
             match("while");
             match("(");
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
-            bool validarDo = Condicion();
+            validarDo = Condicion();
+            
             match(")");
             match(";");
         }
@@ -367,15 +391,19 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
-            //Requerimiento 4
+            //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
+            bool validarFor = Condicion();
+            if (!evaluacion)
+            {
+                validarFor = false;
+            }
             //Requerimiento 6: 
             //a) Necesito guardar la posicion del archivo de texto, guardamos esa posicion en un entero
-            bool validarFor = Condicion();
+            int posicion = (int)archivo.BaseStream.Position;
             
-            
-            //b) Agregar un ciclo while despues de validar el for
-            //while()
-            //{
+            //b) Agregar un ciclo while despues de validar el for, que se ejecute mientras la condicion sea verdadera
+            while(validarFor)
+            {
 
                 match(";");
                 Incremento(evaluacion);
@@ -389,8 +417,9 @@ namespace Semantica
                     Instruccion(evaluacion);
                 }
                 //c)Regresar a la posicion de lectura del archivo de texto
-                //d) sacar otro tokencon
-            //}
+                archivo.BaseStream.Position = posicion;
+                //d) sacar otro tokencon el metodo nextToken
+            }
         }
 
         //Incremento -> Identificador ++ | --
@@ -500,6 +529,11 @@ namespace Semantica
             match("(");
             //Requerimiento 4
             bool validarIf = Condicion();
+            if(!evaluacion)
+            {
+                validarIf = false;
+            }
+
             match(")");
             if (getContenido() == "{")
             {
@@ -516,11 +550,27 @@ namespace Semantica
                 //Requerimiento 4
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarIf);
+                    if (validarIf)
+                    {
+                        BloqueInstrucciones(false);
+                    }
+                    else
+                    {
+                        BloqueInstrucciones(true);
+                    }
+                    //BloqueInstrucciones(validarIf);
                 }
                 else
                 {
-                    Instruccion(validarIf);
+                    if (validarIf)
+                    {
+                        Instruccion(false);
+                    }
+                    else
+                    {
+                        Instruccion(true);
+                    }
+                    //Instruccion(validarIf);
                 }
             }
         }

@@ -1,14 +1,15 @@
 Archivo: prueba.cpp
-04/10/2022 10:18:39 a. m.
+05/10/2022 01:15:53 p. m.
+1 2 1 2 
+= = 0 = 0
 
-= = 256 = 256
-
-= = a = 0
-
+= = 0 = 0
+i 5 
 variables: 
 area Float 0
 radio Float 0
 pi Float 0
 resultado Float 0
 x Char 0
-a Int 256
+a Int 0
+i Int 1
