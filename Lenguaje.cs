@@ -38,7 +38,7 @@ namespace Semantica
             variables.Add(new Variable(nombre, tipo));
         }
 
-        
+
         private void displayVariables()
         {
             log.WriteLine();
@@ -87,7 +87,7 @@ namespace Semantica
             return 0;
         }
 
-        
+
         private Variable.TipoDato getTipo(string nombre)
         {
             foreach (Variable v in variables)
@@ -286,7 +286,7 @@ namespace Semantica
             }
 
             match(Tipos.Identificador);
-            
+
             log.WriteLine();
             log.Write(getContenido() + " = ");
 
@@ -306,7 +306,7 @@ namespace Semantica
                 Console.WriteLine("Dominante ahora cambiara de valor al mayor");
                 dominante = evaluaNumero(resultado);
             }
-            
+
 
             if (dominante <= getTipo(nombre))
             {
@@ -331,14 +331,14 @@ namespace Semantica
             match("(");
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
             bool validarWhile = Condicion();
-            if(!evaluacion)
+            if (!evaluacion)
             {
                 validarWhile = false;
             }
             match(")");
             if (getContenido() == "{")
             {
-                if(validarWhile)
+                if (validarWhile)
                 {
                     BloqueInstrucciones(evaluacion);
                 }
@@ -381,7 +381,7 @@ namespace Semantica
             match("(");
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
             validarDo = Condicion();
-            
+
             match(")");
             match(";");
         }
@@ -392,34 +392,51 @@ namespace Semantica
             match("(");
             Asignacion(evaluacion);
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
-            bool validarFor = Condicion();
-            if (!evaluacion)
-            {
-                validarFor = false;
-            }
-            //Requerimiento 6: 
-            //a) Necesito guardar la posicion del archivo de texto, guardamos esa posicion en un entero
-            int posicion = (int)archivo.BaseStream.Position;
-            
+            bool validarFor;
+            int pos = posicion;
+            int lineaGuardada = linea;
+            int tam = getContenido().Length;
             //b) Agregar un ciclo while despues de validar el for, que se ejecute mientras la condicion sea verdadera
-            while(validarFor)
+            do
             {
 
+                validarFor = Condicion();
+                if (!evaluacion)
+                {
+                    validarFor = false;
+                }
                 match(";");
-                Incremento(evaluacion);
+
+                Incremento(validarFor);
                 match(")");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(evaluacion);
+                    BloqueInstrucciones(validarFor);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(validarFor);
                 }
-                //c)Regresar a la posicion de lectura del archivo de texto
-                archivo.BaseStream.Position = posicion;
-                //d) sacar otro tokencon el metodo nextToken
-            }
+                if (validarFor)
+                {
+                    posicion = pos-tam;
+                    linea = lineaGuardada;
+                    setPosicion(posicion);
+                    NextToken();
+                    
+                }
+            } while (validarFor);
+            //c)Regresar a la posicion de lectura del archivo de texto
+
+            //d) sacar otro tokencon el metodo nextToken(
+
+
+        }
+
+        private void setPosicion(int pos)
+        {
+            archivo.DiscardBufferedData();
+            archivo.BaseStream.Seek(pos, SeekOrigin.Begin);
         }
 
         //Incremento -> Identificador ++ | --
@@ -529,7 +546,7 @@ namespace Semantica
             match("(");
             //Requerimiento 4
             bool validarIf = Condicion();
-            if(!evaluacion)
+            if (!evaluacion)
             {
                 validarIf = false;
             }
@@ -629,8 +646,8 @@ namespace Semantica
                     throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
                 }
             }
-             
-            if(evaluacion)
+
+            if (evaluacion)
             {
 
                 string val = "" + Console.ReadLine();
@@ -647,9 +664,9 @@ namespace Semantica
                 }
 
                 //modVariable(getContenido(), float.Parse(val));
-                
+
             }
-            
+
             match(Tipos.Identificador);
             match(")");
             match(";");
@@ -731,9 +748,9 @@ namespace Semantica
                 {
                     throw new Error("Error de sintaxis, variable solicitada:  <" + getContenido() + "> es inexistente, en linea: " + linea, log);
                 }
-                
+
                 log.Write(getContenido() + " ");
-                if(dominante < getTipo(getContenido()))
+                if (dominante < getTipo(getContenido()))
                 {
                     dominante = getTipo(getContenido());
                 }

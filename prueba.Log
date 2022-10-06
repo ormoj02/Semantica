@@ -1,10 +1,8 @@
 Archivo: prueba.cpp
-05/10/2022 01:15:53 p. m.
-1 2 1 2 
-= = 0 = 0
+06/10/2022 09:37:29 a. m.
 
 = = 0 = 0
-i 5 
+io 5 io io 3 io 5 io io 3 io 5 io io 3 io 5 io io 3 io 5 io io 3 io 5 io io 3 
 variables: 
 area Float 0
 radio Float 0
@@ -12,4 +10,4 @@ pi Float 0
 resultado Float 0
 x Char 0
 a Int 0
-i Int 1
+io Int 5
