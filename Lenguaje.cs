@@ -567,27 +567,26 @@ namespace Semantica
                 //Requerimiento 4
                 if (getContenido() == "{")
                 {
-                    if (validarIf)
+                    if(evaluacion)
+                    {
+                        BloqueInstrucciones(!validarIf);
+                    }
+                    else
                     {
                         BloqueInstrucciones(false);
                     }
-                    else
-                    {
-                        BloqueInstrucciones(true);
-                    }
-                    //BloqueInstrucciones(validarIf);
+                    
                 }
                 else
                 {
-                    if (validarIf)
+                    if(evaluacion)
                     {
-                        Instruccion(false);
+                        Instruccion(!validarIf);
                     }
                     else
                     {
-                        Instruccion(true);
+                        Instruccion(false);
                     }
-                    //Instruccion(validarIf);
                 }
             }
         }
