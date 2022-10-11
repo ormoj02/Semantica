@@ -391,7 +391,9 @@ namespace Semantica
             match("for");
             match("(");
             Asignacion(evaluacion);
+            //string nombre = getContenido();
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
+            float valor = 0;
             bool validarFor;
             int pos = posicion;
             int lineaGuardada = linea;
@@ -399,15 +401,13 @@ namespace Semantica
             //b) Agregar un ciclo while despues de validar el for, que se ejecute mientras la condicion sea verdadera
             do
             {
-
                 validarFor = Condicion();
                 if (!evaluacion)
                 {
                     validarFor = false;
                 }
                 match(";");
-
-                Incremento(validarFor);
+                valor = Incremento();
                 match(")");
                 if (getContenido() == "{")
                 {
@@ -419,20 +419,17 @@ namespace Semantica
                 }
                 if (validarFor)
                 {
-                    posicion = pos-tam;
+                    posicion = pos - tam;
                     linea = lineaGuardada;
                     setPosicion(posicion);
                     NextToken();
-                    
+                    //al finalizar el for se ejecuta el incremento
+                    modVariable(getContenido(), valor);
                 }
             } while (validarFor);
             //c)Regresar a la posicion de lectura del archivo de texto
-
             //d) sacar otro tokencon el metodo nextToken(
-
-
         }
-
         private void setPosicion(int pos)
         {
             archivo.DiscardBufferedData();
@@ -465,6 +462,27 @@ namespace Semantica
                     modVariable(variable, getValor(variable) - 1);
                 }
 
+            }
+        }
+
+        private float Incremento()
+        {
+            string variable = getContenido();
+            //Requerimiento 2.- Si no existe la variable levanta la excepcion
+            if (existeVariable(variable) == false)
+            {
+                throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
+            }
+            match(Tipos.Identificador);
+            if (getContenido() == "++")
+            {
+                match("++");
+                return getValor(variable) + 1;
+            }
+            else
+            {
+                match("--");
+                return getValor(variable) - 1;
             }
         }
 
@@ -567,7 +585,7 @@ namespace Semantica
                 //Requerimiento 4
                 if (getContenido() == "{")
                 {
-                    if(evaluacion)
+                    if (evaluacion)
                     {
                         BloqueInstrucciones(!validarIf);
                     }
@@ -575,11 +593,11 @@ namespace Semantica
                     {
                         BloqueInstrucciones(false);
                     }
-                    
+
                 }
                 else
                 {
-                    if(evaluacion)
+                    if (evaluacion)
                     {
                         Instruccion(!validarIf);
                     }

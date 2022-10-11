@@ -1,7 +1,4 @@
 /* Orta Moreno Jair */
-#include <iostream>
-#include <stdio.h>
-#include <conio.h>
 float area, radio, pi, resultado;
 int a, d, altura;
 float x;
@@ -15,8 +12,9 @@ void main(){
     if(altura >2)
         for(i = altura; i > 0; i--)
         {
-        
+            //printf(i);
             for(j = 0; j < altura-i; j++){
+                //printf(j);
                 if(j!=2){
                     printf("*");
                 }
