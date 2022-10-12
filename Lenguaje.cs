@@ -263,10 +263,7 @@ namespace Semantica
             {
                 return Variable.TipoDato.Int;
             }
-            else
-            {
-                return Variable.TipoDato.Float;
-            }
+            return Variable.TipoDato.Float;
         }
         private bool evaluaSemantica(string variable, float resultado)
         {
@@ -407,7 +404,38 @@ namespace Semantica
                     validarFor = false;
                 }
                 match(";");
-                valor = Incremento();
+                //Incremento(evaluacion);
+                string variable = getContenido();
+                //Requerimiento 2.- Si no existe la variable levanta la excepcion
+                if (existeVariable(variable) == false)
+                {
+                    throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
+                }
+                match(Tipos.Identificador);
+                if (getContenido() == "++")
+                {
+                    match("++");
+
+                    //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
+                    if (evaluacion)
+                    {
+
+                        //modVariable(variable, getValor(variable) + 1);
+                        valor = getValor(variable) + 1;
+                    }
+                }
+                else
+                {
+                    match("--");
+                    //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
+                    if (evaluacion)
+                    {
+
+                        //modVariable(variable, getValor(variable) - 1);
+                        valor = getValor(variable) - 1;
+                    }
+
+                }
                 match(")");
                 if (getContenido() == "{")
                 {
@@ -439,6 +467,7 @@ namespace Semantica
         //Incremento -> Identificador ++ | --
         private void Incremento(bool evaluacion)
         {
+
             string variable = getContenido();
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
             if (existeVariable(variable) == false)
@@ -449,16 +478,21 @@ namespace Semantica
             if (getContenido() == "++")
             {
                 match("++");
+
+                //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
                 if (evaluacion)
                 {
+
                     modVariable(variable, getValor(variable) + 1);
                 }
             }
             else
             {
                 match("--");
+                //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
                 if (evaluacion)
                 {
+
                     modVariable(variable, getValor(variable) - 1);
                 }
 
