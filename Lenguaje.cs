@@ -1,18 +1,15 @@
 /* Orta Moreno Jair */
 using System;
 using System.Collections.Generic;
-//Requerimiento 1.- Actualizar el dominante para variables en la expresion
-//                  Ejemplo: float x; char y; y=x;
-//Requerimiento 2.- Actualizar el dominante para el casteo y el valor de la subexpresion
-//Requerimiento 3.- Programar un metood de conversion de un valor a un tipo de dato
-//                 Ejemplo: 
-//                 private float convert(float valor, String tipoDato)
-//                 deberan usar el residuo de la division %255, %65535, %4294967295(posible)
-
-//Requerimiento 4.- Evaluar nuevamente la condicion del if - else, while, for, do while 
-//                  con respecto al parametro que recibe 
-//Requerimiento 5.- Levantar una excepcion en Scanf cuando la captura no sea un numero
-//Requerimiento 6.- Ejecutar el For()
+//Unidad 3
+//Requesito 1: 
+//  a) Agregar el residuo de la division en el PorFactor()
+//  b) Agregar en instruccion los incrementos de termino() y los incrementos de factor()
+//     a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
+//     en donde el 1 puede ser una expresion
+//  c) Marcar errores semanticos cuando los incrementos de termino() o incrementos de factor() superen el limite de la variable
+//  d) Considerar el inciso b y c para el for
+//  e) Correcto funcionamiento del ciclo while y do while
 
 
 namespace Semantica
@@ -284,41 +281,47 @@ namespace Semantica
 
             match(Tipos.Identificador);
 
-            log.WriteLine();
-            log.Write(getContenido() + " = ");
-
-            match(Tipos.Asignacion);
-            dominante = Variable.TipoDato.Char;
-            //Console.WriteLine("Dominante: " + dominante);
-            Expresion();
-            match(";");
-
-            //hacemos el pop     
-            float resultado = stack.Pop();
-            log.Write("= " + resultado);
-            log.WriteLine();
-            //Console.WriteLine("Evalua Numero: " + evaluaNumero(resultado));
-            if (dominante < evaluaNumero(resultado))
+            if (getClasificacion() == Tipos.IncrementoTermino || getClasificacion() == Tipos.IncrementoFactor)
             {
-                Console.WriteLine("Dominante ahora cambiara de valor al mayor");
-                dominante = evaluaNumero(resultado);
-            }
-
-
-            if (dominante <= getTipo(nombre))
-            {
-                if (evaluacion)
-                {
-                    modVariable(nombre, resultado);
-                }
-
+                //Requerimiento 1.b
+                //Req 1.c
             }
             else
             {
-                throw new Error("Error de semantica: no podemos asignar un valor de tipo <" + dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
+                log.WriteLine();
+                log.Write(getContenido() + " = ");
+
+                match(Tipos.Asignacion);
+                dominante = Variable.TipoDato.Char;
+                //Console.WriteLine("Dominante: " + dominante);
+                Expresion();
+                match(";");
+
+                //hacemos el pop     
+                float resultado = stack.Pop();
+                log.Write("= " + resultado);
+                log.WriteLine();
+                //Console.WriteLine("Evalua Numero: " + evaluaNumero(resultado));
+                if (dominante < evaluaNumero(resultado))
+                {
+                    Console.WriteLine("Dominante ahora cambiara de valor al mayor");
+                    dominante = evaluaNumero(resultado);
+                }
+
+
+                if (dominante <= getTipo(nombre))
+                {
+                    if (evaluacion)
+                    {
+                        modVariable(nombre, resultado);
+                    }
+
+                }
+                else
+                {
+                    throw new Error("Error de semantica: no podemos asignar un valor de tipo <" + dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
+                }
             }
-
-
         }
 
         //While -> while(Condicion) bloque de instrucciones | instruccion
@@ -404,8 +407,12 @@ namespace Semantica
                     validarFor = false;
                 }
                 match(";");
+
+                //requerimiento 1.d
+
+
                 //Incremento(evaluacion);
-                string variable = getContenido();
+                /* string variable = getContenido();
                 //Requerimiento 2.- Si no existe la variable levanta la excepcion
                 if (existeVariable(variable) == false)
                 {
@@ -435,7 +442,10 @@ namespace Semantica
                         valor = getValor(variable) - 1;
                     }
 
-                }
+                } */
+                valor = Incremento(evaluacion);
+
+
                 match(")");
                 if (getContenido() == "{")
                 {
@@ -465,7 +475,7 @@ namespace Semantica
         }
 
         //Incremento -> Identificador ++ | --
-        private void Incremento(bool evaluacion)
+        /* private void Incremento(bool evaluacion)
         {
 
             string variable = getContenido();
@@ -484,6 +494,7 @@ namespace Semantica
                 {
 
                     modVariable(variable, getValor(variable) + 1);
+
                 }
             }
             else
@@ -497,9 +508,8 @@ namespace Semantica
                 }
 
             }
-        }
-
-        private float Incremento()
+        } */
+        private float Incremento(bool evaluacion)
         {
             string variable = getContenido();
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
@@ -511,12 +521,28 @@ namespace Semantica
             if (getContenido() == "++")
             {
                 match("++");
-                return getValor(variable) + 1;
+                if (evaluacion)
+                {
+                    return getValor(variable) + 1;
+                }
+                else
+                {
+                    return getValor(variable);
+                }
+
             }
             else
             {
                 match("--");
-                return getValor(variable) - 1;
+                if (evaluacion)
+                {
+                    return getValor(variable) - 1;
+                }
+                else
+                {
+                    return getValor(variable);
+                }
+
             }
         }
 
@@ -768,6 +794,8 @@ namespace Semantica
                 log.Write(operador + " ");
                 float n1 = stack.Pop();
                 float n2 = stack.Pop();
+
+                //Requerimiento 1.a
                 switch (operador)
                 {
                     case "*":

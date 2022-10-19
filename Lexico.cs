@@ -285,6 +285,8 @@ namespace Semantica
 
                     archivo.Read();
                     posicion++;
+
+            
                     if (c == '\n')
                     {
                         linea++;
