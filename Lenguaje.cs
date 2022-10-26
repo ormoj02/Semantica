@@ -18,7 +18,13 @@ using System.Collections.Generic;
 //Requerimiento 3:
 //  a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
 //  B) Considerar el residuo de la division en assembler
-
+//  c) Programar el printf y scanf en assembler
+// Requerimiento 4:
+//  a) Programar el else en assembler
+//  b) Programar el for en assembler
+// Requerimiento 5:
+//  a) Programar el while en assembler
+//  b) Programar el do while en assembler
 namespace Semantica
 {
     public class Lenguaje : Sintaxis
@@ -29,14 +35,15 @@ namespace Semantica
 
         Variable.TipoDato dominante;
         int cIf;
+        int cFor;
 
         public Lenguaje()
         {
-            cIf = 0;
+            cIf = cFor = 0;
         }
         public Lenguaje(string nombre) : base(nombre)
         {
-            cIf = 0;
+            cIf = cFor = 0;
         }
 
         ~Lenguaje()
@@ -419,10 +426,12 @@ namespace Semantica
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
         private void For(bool evaluacion)
         {
+            string etiquetaInicioFor = "inicioFor" + cFor;
+            string etiquetaFinFor = "finFor" + cFor++;
+            asm.WriteLine(etiquetaInicioFor + ":");
             match("for");
             match("(");
             Asignacion(evaluacion);
-            //string nombre = getContenido();
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
             float valor = 0;
             bool validarFor;
@@ -440,40 +449,6 @@ namespace Semantica
                 match(";");
 
                 //requerimiento 1.d
-
-
-                //Incremento(evaluacion);
-                /* string variable = getContenido();
-                //Requerimiento 2.- Si no existe la variable levanta la excepcion
-                if (existeVariable(variable) == false)
-                {
-                    throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
-                }
-                match(Tipos.Identificador);
-                if (getContenido() == "++")
-                {
-                    match("++");
-
-                    //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
-                    if (evaluacion)
-                    {
-
-                        //modVariable(variable, getValor(variable) + 1);
-                        valor = getValor(variable) + 1;
-                    }
-                }
-                else
-                {
-                    match("--");
-                    //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
-                    if (evaluacion)
-                    {
-
-                        //modVariable(variable, getValor(variable) - 1);
-                        valor = getValor(variable) - 1;
-                    }
-
-                } */
                 valor = Incremento(evaluacion);
 
 
@@ -496,6 +471,7 @@ namespace Semantica
                     modVariable(getContenido(), valor);
                 }
             } while (validarFor);
+            asm.WriteLine(etiquetaFinFor + ":");
             //c)Regresar a la posicion de lectura del archivo de texto
             //d) sacar otro tokencon el metodo nextToken(
         }

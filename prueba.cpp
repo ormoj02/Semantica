@@ -1,19 +1,25 @@
 /* Orta Moreno Jair */
 float area, radio, pi, resultado;
-int a, d, altura;
+int a, d, altura, k, l;
 float x;
-char y;
+int y;
 int i;
 int j;
+
 // Este programa calcula el volumen de un cilindro.
 void main()
 {
-    y = 61;
-    if (60 == 61)
+    for (i = 0; i < 1; i++)
     {
-        x = 10;
+        for (j = 0; j < 1; j++)
+        {
+            x = x + 1;
+            for (k = 0; k < 1; k++)
+                for (l = 0; l < 1; l++)
+                    y = y + 2;
+        }
     }
-    
+
     /* y = 255;
     // Requerimiento 5.- Levanta una excepcion en el scanf si la captura no es un numero
     printf("Introduce la altura de la piramide: ");
