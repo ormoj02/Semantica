@@ -1,5 +1,5 @@
 ;Archivo: prueba.cpp
-;Fecha: 28/10/2022 09:42:00 a. m.
+;Fecha: 29/10/2022 03:02:50 p. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
@@ -14,47 +14,18 @@ ORG 100h
 	 k DW 0
 	 l DW 0
 	 x DW 0
+	 x1 DW 0
+	 x2 DW 0
 	 y DW 0
 	 i DW 0
 	 j DW 0
-MOV AX, 255
+MOV AX, 1
 PUSH AX
 POP AX
-MOV y, AX
-PRINTN "Introduce la altura de la piramide: "
-CALL SCAN_NUM
-MOV altura, CX
-MOV AX, 2
-PUSH AX
-POP BX
+MOV x, AX
 POP AX
-CMP AX, BX
-JLE if1
-inicioFor0:
+PRINTN "
+"
 POP AX
-MOV i, AX
-MOV AX, 0
-PUSH AX
-POP BX
-POP AX
-CMP AX, BX
-JLE 
-MOV AX, 0
-PUSH AX
-POP AX
-MOV j, AX
-POP BX
-POP AX
-SUB AX, BX
-PUSH AX
-POP BX
-POP AX
-CMP AX, BX
-JGE 
-MOV AX, 2
-PUSH AX
-POP BX
-POP AX
-MOV AX, 0
-PUSH AX
-POP BX
+RET
+DEFINE_SCAN_NUM

@@ -1,9 +1,21 @@
 Archivo: prueba.cpp
-28/10/2022 09:42:00 a. m.
+29/10/2022 03:02:50 p. m.
 
-= = 255 = 255
-altura 2 
-= = altura = 5
-i 0 
-= = 0 = 0
-j altura i - j 2 % 0 
+= = 1 = 1
+x x 
+variables: 
+area Float 0
+radio Float 0
+pi Float 0
+resultado Float 0
+a Int 0
+d Int 0
+altura Int 0
+k Int 0
+l Int 0
+x Float 4
+x1 Float 0
+x2 Float 0
+y Int 0
+i Int 0
+j Int 0

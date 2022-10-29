@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 //Unidad 3
 //Requerimiento 1: 
-//  a) Agregar el residuo de la division en el PorFactor()
-//  b) Agregar en instruccion los incrementos de termino() y los incrementos de factor()
+//  x a) Agregar el residuo de la division en el PorFactor()
+//  x b) Agregar en instruccion los incrementos de termino() y los incrementos de factor()
 //     a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
 //     en donde el 1 puede ser una expresion
 //  c) Programar el destructor 
@@ -322,6 +322,78 @@ namespace Semantica
             if (getClasificacion() == Tipos.IncrementoTermino || getClasificacion() == Tipos.IncrementoFactor)
             {
                 //Requerimiento 1.b
+                //Agregamos los incrementos a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
+                if(getContenido() == "++")
+                {
+                    match("++");
+                    modVariable(nombre, getValor(nombre) + 1);
+                    
+                }
+                else if(getContenido() == "--")
+                {
+                    match("--");
+                    modVariable(nombre, getValor(nombre) - 1);
+                }
+                else if(getContenido() == "+=")
+                {
+                    match("+=");
+                    //guardamos el valor del incremento
+                    string incrementoValor = getContenido();
+                    match(Tipos.Numero);
+                    //lo convertimos a float
+                    float incremento = float.Parse(incrementoValor);
+                    //modificamos el valor de la variable
+                    modVariable(nombre, getValor(nombre) + incremento);
+                }
+                else if(getContenido() == "-=")
+                {
+                    match("-=");
+                    //guardamos el valor del incremento
+                    string incrementoValor = getContenido();
+                    match(Tipos.Numero);
+                    //lo convertimos a float
+                    float incremento = float.Parse(incrementoValor);
+                    //modificamos el valor de la variable
+                    modVariable(nombre, getValor(nombre) - incremento);
+                }
+                else if(getContenido() == "*=")
+                {
+                    match("*=");
+                    //guardamos el valor del incremento
+                    string incrementoValor = getContenido();
+                    //lo matcheamos para que avance el puntero
+                    match(Tipos.Numero);
+                    //lo convertimos a float
+                    float incremento = float.Parse(incrementoValor);
+                    //modificamos el valor de la variable
+                    modVariable(nombre, getValor(nombre) * incremento);
+                }
+                else if(getContenido() == "/=")
+                {
+                    match("/=");
+                    //guardamos el valor del incremento
+                    string incrementoValor = getContenido();
+                    //lo matcheamos para que avance el puntero
+                    match(Tipos.Numero);
+                    //lo convertimos a float
+                    float incremento = float.Parse(incrementoValor);
+                    //modificamos el valor de la variable
+                    modVariable(nombre, getValor(nombre) / incremento);
+                }
+                else if(getContenido() == "%=")
+                {
+                    match("%=");
+                    //guardamos el valor del incremento
+                    string incrementoValor = getContenido();
+                    //lo matcheamos para que avance el puntero
+                    match(Tipos.Numero);
+                    //lo convertimos a float
+                    float incremento = float.Parse(incrementoValor);
+                    //modificamos el valor de la variable
+                    modVariable(nombre, getValor(nombre) * incremento);
+                }
+                
+                match(";");
                 //Req 1.c
             }
             else
@@ -527,6 +599,7 @@ namespace Semantica
             match(Tipos.Identificador);
             if (getContenido() == "++")
             {
+                
                 match("++");
                 if (evaluacion)
                 {
@@ -844,6 +917,12 @@ namespace Semantica
                         asm.WriteLine("DIV BX");
                         //Se guarda el resultado de la division en AL y lo metemos al stack
                         asm.WriteLine("PUSH AX");
+                        break;
+                    case "%":
+                        stack.Push(n2 % n1);
+                        asm.WriteLine("DIV BX");
+                        //Se guarda el resto de la division en AH y lo metemos al stack
+                        asm.WriteLine("PUSH DX");
                         break;
                 }
             }
