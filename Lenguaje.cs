@@ -143,7 +143,7 @@ namespace Semantica
             Main();
             displayVariables();
             asm.WriteLine("RET");
-            //asm.WriteLine("END");
+            asm.WriteLine("DEFINE_SCAN_NUM");
         }
 
         //Librerias -> #include<identificador(.h)?> Librerias?
@@ -709,6 +709,7 @@ namespace Semantica
                     //escribe contenido
                     Console.Write(getContenido());
                 }
+                asm.WriteLine("PRINTN \"" + getContenido()+"\"");
 
                 match(Tipos.Cadena);
             }
@@ -720,6 +721,7 @@ namespace Semantica
                 if (evaluacion)
                 {
                     Console.Write(resultado);
+                    //Codigo assembler para imprimir una variable
                 }
             }
 
@@ -750,8 +752,6 @@ namespace Semantica
             {
 
                 string val = "" + Console.ReadLine();
-                //Requerimiento 5.- Si el valor no es un numero, levanta la excepcion
-                //revisamos si capturamos un numero en la cadena de caracteres
                 if (float.TryParse(val, out float numero))
                 {
                     modVariable(getContenido(), numero);
@@ -762,6 +762,8 @@ namespace Semantica
                     throw new Error("Error: No se puede asignar un valor de tipo cadena a una variable de tipo numerico " + getContenido() + " en la linea: " + linea, log);
                 }
 
+                asm.WriteLine("CALL SCAN_NUM");
+                asm.WriteLine("MOV " + getContenido() + ", CX");
                 //modVariable(getContenido(), float.Parse(val));
 
             }
