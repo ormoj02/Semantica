@@ -27,8 +27,12 @@ using System.Collections.Generic;
 //  b) Programar el do while en assembler
 namespace Semantica
 {
-    public class Lenguaje : Sintaxis
+    public class Lenguaje : Sintaxis, IDisposable
     {
+        public void Dispose()
+        {
+            Console.WriteLine("\nDispose");
+        }
 
         List<Variable> variables = new List<Variable>();
         Stack<float> stack = new Stack<float>();
@@ -46,11 +50,12 @@ namespace Semantica
             cIf = cFor = 0;
         }
 
-        ~Lenguaje()
+        /* ~Lenguaje()
         {
-            Console.WriteLine("Destructor");
-            cerrar();
-        }
+            Console.WriteLine("\nDestructor");
+            //cerrar();
+        } */
+        
 
         private void addVariable(String nombre, Variable.TipoDato tipo)
         {
@@ -70,11 +75,11 @@ namespace Semantica
 
         private void variablesASM()
         {
-            
+
             asm.WriteLine(";Variables: ");
             foreach (Variable v in variables)
             {
-                asm.WriteLine("\t "+v.getNombre() + " DW " + v.getValor());
+                asm.WriteLine("\t " + v.getNombre() + " DW " + v.getValor());
             }
         }
 
@@ -323,18 +328,18 @@ namespace Semantica
             {
                 //Requerimiento 1.b
                 //Agregamos los incrementos a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
-                if(getContenido() == "++")
+                if (getContenido() == "++")
                 {
                     match("++");
                     modVariable(nombre, getValor(nombre) + 1);
-                    
+
                 }
-                else if(getContenido() == "--")
+                else if (getContenido() == "--")
                 {
                     match("--");
                     modVariable(nombre, getValor(nombre) - 1);
                 }
-                else if(getContenido() == "+=")
+                else if (getContenido() == "+=")
                 {
                     match("+=");
                     //guardamos el valor del incremento
@@ -345,7 +350,7 @@ namespace Semantica
                     //modificamos el valor de la variable
                     modVariable(nombre, getValor(nombre) + incremento);
                 }
-                else if(getContenido() == "-=")
+                else if (getContenido() == "-=")
                 {
                     match("-=");
                     //guardamos el valor del incremento
@@ -356,7 +361,7 @@ namespace Semantica
                     //modificamos el valor de la variable
                     modVariable(nombre, getValor(nombre) - incremento);
                 }
-                else if(getContenido() == "*=")
+                else if (getContenido() == "*=")
                 {
                     match("*=");
                     //guardamos el valor del incremento
@@ -368,7 +373,7 @@ namespace Semantica
                     //modificamos el valor de la variable
                     modVariable(nombre, getValor(nombre) * incremento);
                 }
-                else if(getContenido() == "/=")
+                else if (getContenido() == "/=")
                 {
                     match("/=");
                     //guardamos el valor del incremento
@@ -380,7 +385,7 @@ namespace Semantica
                     //modificamos el valor de la variable
                     modVariable(nombre, getValor(nombre) / incremento);
                 }
-                else if(getContenido() == "%=")
+                else if (getContenido() == "%=")
                 {
                     match("%=");
                     //guardamos el valor del incremento
@@ -392,7 +397,7 @@ namespace Semantica
                     //modificamos el valor de la variable
                     modVariable(nombre, getValor(nombre) * incremento);
                 }
-                
+
                 match(";");
                 //Req 1.c
             }
@@ -423,7 +428,7 @@ namespace Semantica
                 {
                     if (evaluacion)
                     {
-                        modVariable(nombre, resultado); 
+                        modVariable(nombre, resultado);
                     }
                 }
                 else
@@ -599,7 +604,7 @@ namespace Semantica
             match(Tipos.Identificador);
             if (getContenido() == "++")
             {
-                
+
                 match("++");
                 if (evaluacion)
                 {
@@ -782,7 +787,7 @@ namespace Semantica
                     //escribe contenido
                     Console.Write(getContenido());
                 }
-                asm.WriteLine("PRINTN \"" + getContenido()+"\"");
+                asm.WriteLine("PRINTN \"" + getContenido() + "\"");
 
                 match(Tipos.Cadena);
             }
@@ -899,8 +904,8 @@ namespace Semantica
                 asm.WriteLine("POP BX");
                 float n2 = stack.Pop();
                 asm.WriteLine("POP AX");
-                
-                
+
+
 
                 //Requerimiento 1.a
                 switch (operador)

@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\Semantica.csproj",
+      "projectUniqueName": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\SemanticaV2\\Semantica.csproj",
       "projectName": "Semantica",
-      "projectPath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\Semantica.csproj",
+      "projectPath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\SemanticaV2\\Semantica.csproj",
       "packagesPath": "C:\\Users\\ormoj\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\obj\\",
+      "outputPath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\SemanticaV2\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

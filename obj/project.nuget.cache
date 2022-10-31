@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Am9SiE+C1BpB0qGI87IxSkQyYK0OUFLHqPFJheUHALuC+exrd5Ow97FYZxcEOsMpIrF3nUuQ5giCeyNVDYa9yg==",
+  "dgSpecHash": "nwc+f+CpLdGuGqhOyC7R/mSvUhhdggAYCzszGm5AgWLWdy5d+GcyJYlECpklA5Wa5ruFeCq81Odla7XatFr7PA==",
   "success": true,
-  "projectFilePath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\Semantica.csproj",
+  "projectFilePath": "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\SemanticaV2\\Semantica.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

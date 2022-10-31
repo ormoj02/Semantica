@@ -1,6 +1,7 @@
 ﻿/* Orta Moreno Jair */
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Semantica
 {
@@ -8,20 +9,27 @@ namespace Semantica
     {
         static void Main(string[] args)
         {
-            try
-            {
-                Lenguaje a = new Lenguaje();
-
-                a.Programa();
-
-                a.cerrar();
-                
-            }
-            catch (Exception e)
-            {
-                Console.Write(e.Message);
-            }
             
+            using (Lenguaje a = new Lenguaje())
+            {
+                try
+                {
+                    //Lenguaje a = new Lenguaje();
+
+                    a.Programa();
+
+                    //a.cerrar();
+
+                }
+                catch (Exception e)
+                {
+                    Console.Write(e.Message);
+                }
+            }
+
+
+
         }
+
     }
 }
