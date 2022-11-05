@@ -1,21 +1,5 @@
 Archivo: prueba.cpp
-29/10/2022 03:02:50 p. m.
+05/11/2022 03:29:47 p. m.
 
-= = 1 = 1
-x x 
-variables: 
-area Float 0
-radio Float 0
-pi Float 0
-resultado Float 0
-a Int 0
-d Int 0
-altura Int 0
-k Int 0
-l Int 0
-x Float 4
-x1 Float 0
-x2 Float 0
-y Int 0
-i Int 0
-j Int 0
+= = 65535 = 65535
+Error de semantica: No es posible la modificacion de la variable <a> debido a al limite que tiene una variable de tipo <Int> en a linea: 14

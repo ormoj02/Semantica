@@ -62,11 +62,11 @@ namespace Semantica
         public Lexico()
         {
             linea = 1;
-            string path = "C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\prueba.cpp";
+            string path = "prueba.cpp";
             bool existencia = File.Exists(path);
-            log = new StreamWriter("C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\prueba.Log");
+            log = new StreamWriter("prueba.Log");
             log.AutoFlush = true;
-            asm = new StreamWriter("C:\\Users\\ormoj\\Documents\\Semestre 5\\Lenguajes Y Automatas 2\\Proyectos\\Semantica\\prueba.asm");
+            asm = new StreamWriter("prueba.asm");
             asm.AutoFlush = true;
             
             //log.WriteLine("Primer constructor");

@@ -9,8 +9,17 @@ namespace Semantica
     {
         static void Main(string[] args)
         {
-            
-            using (Lenguaje a = new Lenguaje())
+            /* try
+            {
+                using (Lenguaje a = new Lenguaje())
+                {
+                    a.Programa();
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            } */
+            /* using (Lenguaje a = new Lenguaje())
             {
                 try
                 {
@@ -25,8 +34,10 @@ namespace Semantica
                 {
                     Console.Write(e.Message);
                 }
-            }
-
+            } */
+            Lenguaje a = new Lenguaje();
+            a.Programa();
+            a.cerrar();
 
 
         }
