@@ -1,5 +1,20 @@
 Archivo: prueba.cpp
-05/11/2022 03:29:47 p. m.
-
-= = 65535 = 65535
-Error de semantica: No es posible la modificacion de la variable <a> debido a al limite que tiene una variable de tipo <Int> en a linea: 14
+06/11/2022 11:22:53 a. m.
+1 1 
+variables: 
+area Float 0
+radio Float 0
+pi Float 0
+resultado Float 0
+a Int 0
+d Int 0
+altura Int 0
+k Int 0
+l Int 0
+x Float 0
+x1 Float 0
+x2 Float 0
+y Int 0
+i Int 0
+j Int 0
+a1 Char 0

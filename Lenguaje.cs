@@ -12,15 +12,15 @@ using System.Collections.Generic;
 //        #libreria especial? contenedor?
 //        #en la clase lexico
 //Requerimiento 2:
-//  x c) Marcar errores semanticos cuando los incrementos de termino() o incrementos de factor() superen el limite de la variable
-//  d) Considerar el inciso b y c para el for
-//  e) Correcto funcionamiento del ciclo while y do while
+//  x a) Marcar errores semanticos cuando los incrementos de termino() o incrementos de factor() superen el limite de la variable
+//  x b) Considerar el inciso b y c para el for
+//  x c) Correcto funcionamiento del ciclo while y do while
 //Requerimiento 3:
 //  a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
-//  B) Considerar el residuo de la division en assembler
+//  b) Considerar el residuo de la division en assembler
 //  c) Programar el printf y scanf en assembler
 // Requerimiento 4:
-//  a) Programar el else en assembler
+//  x a) Programar el else en assembler
 //  b) Programar el for en assembler
 // Requerimiento 5:
 //  a) Programar el while en assembler
@@ -322,102 +322,7 @@ namespace Semantica
                 dominante = Variable.TipoDato.Char;
                 //Requerimiento 1.b
                 //Agregamos los incrementos a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
-                if (getContenido() == "++")
-                {
-                    match("++");
-                    nuevoValor = getValor(nombre) + 1;
-                    
-
-                }
-                else if (getContenido() == "--")
-                {
-                    match("--");
-                    nuevoValor = getValor(nombre) - 1;
-                    
-                }
-                else if (getContenido() == "+=")
-                {
-                    match("+=");
-                    //guardamos el valor del incremento
-                    string incrementoValor = getContenido();
-                    match(Tipos.Numero);
-                    //Console.WriteLine("Hago el incremento");
-                    //lo convertimos a float
-                    float incremento = float.Parse(incrementoValor);
-
-                    nuevoValor = getValor(nombre) + incremento;
-                    
-                }
-                else if (getContenido() == "-=")
-                {
-                    match("-=");
-                    //guardamos el valor del incremento
-                    string incrementoValor = getContenido();
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    float incremento = float.Parse(incrementoValor);
-
-                    nuevoValor = getValor(nombre) - incremento;
-                    
-                }
-                else if (getContenido() == "*=")
-                {
-                    match("*=");
-                    //guardamos el valor del incremento
-                    string incrementoValor = getContenido();
-                    //lo matcheamos para que avance el puntero
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    float incremento = float.Parse(incrementoValor);
-
-                    nuevoValor = getValor(nombre) * incremento;
-                    
-                }
-                else if (getContenido() == "/=")
-                {
-                    match("/=");
-                    //guardamos el valor del incremento
-                    string incrementoValor = getContenido();
-                    //lo matcheamos para que avance el puntero
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    float incremento = float.Parse(incrementoValor);
-
-                    nuevoValor = getValor(nombre) / incremento;
-                    
-                }
-                else if (getContenido() == "%=")
-                {
-                    match("%=");
-                    //guardamos el valor del incremento
-                    string incrementoValor = getContenido();
-                    //lo matcheamos para que avance el puntero
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    float incremento = float.Parse(incrementoValor);
-
-                    nuevoValor = getValor(nombre) % incremento;
-                    
-                }
-
-                if (dominante < evaluaNumero(nuevoValor))
-                {
-                    Console.WriteLine("Dominante ahora cambiara de valor al mayor");
-                    dominante = evaluaNumero(nuevoValor);
-                }
-
-                if (dominante <= getTipo(nombre))
-                {
-                    if (evaluacion)
-                    {
-                        modVariable(nombre, nuevoValor);
-                    }
-                }
-                else
-                {
-                    //throw new Error("Error de semantica: no podemos asignar un valor de tipo <" + dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
-                    throw new Error("Error de semantica: No es posible la modificacion de la variable <"+nombre+"> debido a al limite que tiene una variable de tipo <"+tipoDato+"> en a linea: "+linea,log);
-                }
+                modVariable(nombre, Incremento(nombre, evaluacion));
 
                 match(";");
                 //Req 1.c
@@ -464,59 +369,98 @@ namespace Semantica
         private void While(bool evaluacion)
         {
             match("while");
+
             match("(");
-            //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
-            bool validarWhile = Condicion("");
-            if (!evaluacion)
+            bool validarWhile;
+            int posicionWhile = posicion;
+            int lineaWhile = linea;
+            string variable = getContenido();
+            do
             {
-                validarWhile = false;
-            }
-            match(")");
-            if (getContenido() == "{")
-            {
-                if (validarWhile)
+                validarWhile = Condicion("");
+                if (!evaluacion)
                 {
-                    BloqueInstrucciones(evaluacion);
+                    validarWhile = false;
+                }
+
+                match(")");
+
+
+                if (getContenido() == "{")
+                {
+                    if (validarWhile)
+                    {
+                        BloqueInstrucciones(evaluacion);
+                    }
+                    else
+                    {
+                        BloqueInstrucciones(false);
+                    }
                 }
                 else
                 {
-                    BloqueInstrucciones(false);
+                    if (validarWhile)
+                    {
+                        Instruccion(evaluacion);
+                    }
+                    else
+                    {
+                        Instruccion(false);
+                    }
                 }
-            }
-            else
-            {
                 if (validarWhile)
                 {
-                    Instruccion(evaluacion);
+                    posicion = posicionWhile - variable.Length;
+                    linea = lineaWhile;
+                    setPosicion(posicion);
+                    NextToken();
+
                 }
-                else
-                {
-                    Instruccion(false);
-                }
-            }
+            } while (validarWhile);
+
+
         }
 
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
         private void Do(bool evaluacion)
         {
-            bool validarDo = true;
+            bool validarDo = evaluacion;
+            string variable;
             if (!evaluacion)
             {
                 validarDo = false;
             }
             match("do");
-            if (getContenido() == "{")
+            int posicionDo = posicion;
+            int lineaDo = linea;
+            do
             {
-                BloqueInstrucciones(evaluacion);
-            }
-            else
-            {
-                Instruccion(evaluacion);
-            }
-            match("while");
-            match("(");
-            //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
-            validarDo = Condicion("");
+                if (getContenido() == "{")
+                {
+                    BloqueInstrucciones(evaluacion);
+                }
+                else
+                {
+                    Instruccion(evaluacion);
+                }
+                match("while");
+                match("(");
+                variable = getContenido();
+                //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
+                validarDo = Condicion("");
+                if (!evaluacion)
+                {
+                    validarDo = false;
+                }
+                else if (validarDo)
+                {
+                    posicion = posicionDo - 1;
+                    linea = lineaDo;
+                    setPosicion(posicion);
+                    NextToken();
+                }
+            } while (validarDo);
+
 
             match(")");
             match(";");
@@ -536,6 +480,7 @@ namespace Semantica
             int pos = posicion;
             int lineaGuardada = linea;
             int tam = getContenido().Length;
+            string variable = getContenido();
             //b) Agregar un ciclo while despues de validar el for, que se ejecute mientras la condicion sea verdadera
             do
             {
@@ -547,7 +492,8 @@ namespace Semantica
                 match(";");
 
                 //requerimiento 1.d
-                valor = Incremento(evaluacion);
+                match(Tipos.Identificador);
+                valor = Incremento(variable, evaluacion);
 
 
                 match(")");
@@ -614,22 +560,117 @@ namespace Semantica
 
             }
         } */
-        private float Incremento(bool evaluacion)
+        private float Incremento(string variable, bool evaluacion)
         {
-            string variable = getContenido();
+            //variable = getContenido();
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
             if (existeVariable(variable) == false)
             {
                 throw new Error("Error: Variable inexistente " + getContenido() + " en la linea: " + linea, log);
             }
-            match(Tipos.Identificador);
+            //match(Tipos.Identificador);
 
-            string incrementoValor;
+            //string incrementoValor;
             float incremento = 0;
-            float nuevoValor;
+            float nuevoValor = getValor(variable);
             Variable.TipoDato tipoDato = getTipo(variable);
+            dominante = Variable.TipoDato.Char;
 
-            switch (getContenido())
+
+            if (getContenido() == "++")
+            {
+                match("++");
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) + 1;
+                }
+
+            }
+            else if (getContenido() == "--")
+            {
+                match("--");
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) - 1;
+                }
+
+            }
+            else if (getContenido() == "+=")
+            {
+                match("+=");
+                Expresion();
+                incremento = stack.Pop();
+
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) + incremento;
+                }
+
+            }
+            else if (getContenido() == "-=")
+            {
+                match("-=");
+                Expresion();
+
+                incremento = stack.Pop();
+
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) - incremento;
+                }
+
+            }
+            else if (getContenido() == "*=")
+            {
+                match("*=");
+                Expresion();
+
+                incremento = stack.Pop();
+
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) * incremento;
+                }
+
+            }
+            else if (getContenido() == "/=")
+            {
+                match("/=");
+                Expresion();
+
+                incremento = stack.Pop();
+
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) / incremento;
+                }
+
+            }
+            else if (getContenido() == "%=")
+            {
+                match("%=");
+                Expresion();
+
+                incremento = stack.Pop();
+
+                if (evaluacion)
+                {
+                    nuevoValor = getValor(variable) % incremento;
+                }
+
+            }
+            if (getTipo(variable) == Variable.TipoDato.Char && nuevoValor > 255)
+            {
+                throw new Error("Error: El valor de la variable " + variable + " excede el rango de un char", log);
+            }
+            else if (getTipo(variable) == Variable.TipoDato.Int && nuevoValor > 65535)
+            {
+                throw new Error("Error: El valor de la variable " + variable + " excede el rango de un int", log);
+            }
+            return nuevoValor;
+
+
+            /* switch (getContenido())
             {
                 case "++":
                     match("++");
@@ -750,7 +791,7 @@ namespace Semantica
                     }
                 default:
                     throw new Error("Error: Se esperaba ++ o -- en la linea: " + linea, log);
-            }
+            } */
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
@@ -839,6 +880,7 @@ namespace Semantica
         private void If(bool evaluacion)
         {
             string etiquetaIf = "if" + ++cIf;
+            string etiquetaElse = "else" + cIf;
             match("if");
             match("(");
             //Requerimiento 4
@@ -857,7 +899,8 @@ namespace Semantica
             {
                 Instruccion(validarIf);
             }
-
+            asm.WriteLine("JMP " + etiquetaElse);
+            asm.WriteLine(etiquetaIf + ":");
             if (getContenido() == "else")
             {
                 match("else");
@@ -887,7 +930,7 @@ namespace Semantica
                 }
 
             }
-            asm.WriteLine(etiquetaIf + ":");
+            asm.WriteLine(etiquetaElse + ":");
         }
 
         //Printf -> printf(cadena|expresion);

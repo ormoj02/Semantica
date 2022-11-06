@@ -10,6 +10,12 @@ char a1;
 // Este programa calcula el volumen de un cilindro.
 void main()
 {
-    a = 65535;
-    a+=1;
+    if(1 == 1)
+    {
+        printf("True\n");
+    }
+    else
+    {
+        printf("False\n");
+    }
 }
