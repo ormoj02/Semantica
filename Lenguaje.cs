@@ -17,8 +17,8 @@ using System.Collections.Generic;
 //  x c) Correcto funcionamiento del ciclo while y do while
 //Requerimiento 3:
 //  a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
-//  b) Considerar el residuo de la division en assembler
-//  c) Programar el printf y scanf en assembler
+//  x b) Considerar el residuo de la division en assembler
+//  x c) Programar el printf y scanf en assembler
 // Requerimiento 4:
 //  x a) Programar el else en assembler
 //  b) Programar el for en assembler
@@ -668,130 +668,6 @@ namespace Semantica
                 throw new Error("Error: El valor de la variable " + variable + " excede el rango de un int", log);
             }
             return nuevoValor;
-
-
-            /* switch (getContenido())
-            {
-                case "++":
-                    match("++");
-                    if (evaluacion)
-                    {
-                        nuevoValor = getValor(variable) + incremento;
-                        if (tipoDato == Variable.TipoDato.Char && nuevoValor > 255)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Int && nuevoValor > 65535)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Float)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else
-                        {
-                            return nuevoValor;
-                        }
-                    }
-                    else
-                    {
-                        return getValor(variable);
-                    }
-                case "--":
-                    match("--");
-                    if (evaluacion)
-                    {
-                        nuevoValor = getValor(variable) - incremento;
-                        if (tipoDato == Variable.TipoDato.Char && nuevoValor > 255)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Int && nuevoValor > 65535)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Float)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else
-                        {
-                            return nuevoValor;
-                        }
-                    }
-                    else
-                    {
-                        return getValor(variable);
-                    }
-
-                case "+=":
-                    match("+=");
-                    //guardamos el valor del incremento
-                    incrementoValor = getContenido();
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    incremento = float.Parse(incrementoValor);
-                    //return getValor(variable)+incrementoValor;
-                    if (evaluacion)
-                    {
-                        nuevoValor = getValor(variable) + incremento;
-                        if (tipoDato == Variable.TipoDato.Char && nuevoValor > 255)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Int && nuevoValor > 65535)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Float)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else
-                        {
-                            return nuevoValor;
-                        }
-                    }
-                    else
-                    {
-                        return getValor(variable);
-                    }
-                case "-=":
-                    match("-=");
-                    //guardamos el valor del incremento
-                    incrementoValor = getContenido();
-                    match(Tipos.Numero);
-                    //lo convertimos a float
-                    incremento = float.Parse(incrementoValor);
-                    //return getValor(variable)+incrementoValor;
-                    if (evaluacion)
-                    {
-                        nuevoValor = getValor(variable) - incremento;
-                        if (tipoDato == Variable.TipoDato.Char && nuevoValor > 255)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Int && nuevoValor > 65535)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else if (tipoDato == Variable.TipoDato.Float)
-                        {
-                            throw new Error("Error de semantica, no podemos hacer ese incremento en una variable de tipo: " + tipoDato, log);
-                        }
-                        else
-                        {
-                            return nuevoValor;
-                        }
-                    }
-                    else
-                    {
-                        return getValor(variable);
-                    }
-                default:
-                    throw new Error("Error: Se esperaba ++ o -- en la linea: " + linea, log);
-            } */
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
@@ -943,6 +819,13 @@ namespace Semantica
             //revisamos si es una cadena
             if (getClasificacion() == Tipos.Cadena)
             {
+                string cadena = getContenido();
+                cadena = cadena.Replace("\\t", string.Empty);
+                cadena = cadena.Replace("\\n", string.Empty);
+                cadena = cadena.Replace("\"", string.Empty);
+                
+                asm.WriteLine("PRINTN \"" + cadena + "\"");
+
                 if (evaluacion)
                 {
                     //cambiamos las comillas por los datos correctos
@@ -952,8 +835,6 @@ namespace Semantica
                     //escribe contenido
                     Console.Write(getContenido());
                 }
-                asm.WriteLine("PRINTN \"" + getContenido() + "\"");
-
                 match(Tipos.Cadena);
             }
             else

@@ -1,5 +1,5 @@
 ;Archivo: prueba.cpp
-;Fecha: 06/11/2022 11:22:53 a. m.
+;Fecha: 07/11/2022 08:36:22 a. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
@@ -28,11 +28,10 @@ POP BX
 POP AX
 CMP AX, BX
 JNE if1
-PRINTN "True
-"
+PRINTN "True"
 JMP else1
 if1:
-PRINTN ""False\n""
+PRINTN "False"
 else1:
 RET
 DEFINE_SCAN_NUM
