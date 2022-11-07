@@ -16,23 +16,23 @@ using System.Collections.Generic;
 //  x b) Considerar el inciso b y c para el for
 //  x c) Correcto funcionamiento del ciclo while y do while
 //Requerimiento 3:
-//  a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
+//  X a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
 //  x b) Considerar el residuo de la division en assembler
 //  x c) Programar el printf y scanf en assembler
-// Requerimiento 4:
+//Requerimiento 4:
 //  x a) Programar el else en assembler
 //  b) Programar el for en assembler
-// Requerimiento 5:
+//Requerimiento 5:
 //  a) Programar el while en assembler
 //  b) Programar el do while en assembler
 namespace Semantica
 {
-    public class Lenguaje : Sintaxis/* , IDisposable  */
+    public class Lenguaje : Sintaxis, IDisposable
     {
-        /* public void Dispose()
+        public void Dispose()
         {
-            Console.WriteLine("\nDestructor");
-        }  */
+            Console.WriteLine("\nDestructor :3");
+        }
 
 
         List<Variable> variables = new List<Variable>();
@@ -139,6 +139,8 @@ namespace Semantica
             Main();
             displayVariables();
             asm.WriteLine("RET");
+            asm.WriteLine("DEFINE_PRINT_NUM");
+            asm.WriteLine("DEFINE_PRINT_NUM_UNS");
             asm.WriteLine("DEFINE_SCAN_NUM");
         }
 
@@ -191,7 +193,6 @@ namespace Semantica
                 else
                 {
                     throw new Error("Error de sintaxis, variable duplicada <" + getContenido() + "> en linea: " + linea, log);
-
                 }
             }
             match(Tipos.Identificador);
@@ -361,7 +362,13 @@ namespace Semantica
                 {
                     throw new Error("Error de semantica: no podemos asignar un valor de tipo <" + dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
                 }
+                if(getTipo(nombre) == Variable.TipoDato.Char)
+                {
+                    asm.WriteLine("MOV AH, 0");
+                }
+
                 asm.WriteLine("MOV " + nombre + ", AX");
+
             }
         }
 
@@ -779,6 +786,7 @@ namespace Semantica
             asm.WriteLine(etiquetaIf + ":");
             if (getContenido() == "else")
             {
+
                 match("else");
                 //Requerimiento 4
                 if (getContenido() == "{")
@@ -819,11 +827,12 @@ namespace Semantica
             //revisamos si es una cadena
             if (getClasificacion() == Tipos.Cadena)
             {
+                
                 string cadena = getContenido();
                 cadena = cadena.Replace("\\t", string.Empty);
                 cadena = cadena.Replace("\\n", string.Empty);
                 cadena = cadena.Replace("\"", string.Empty);
-                
+
                 asm.WriteLine("PRINTN \"" + cadena + "\"");
 
                 if (evaluacion)
@@ -846,6 +855,8 @@ namespace Semantica
                 {
                     Console.Write(resultado);
                     //Codigo assembler para imprimir una variable
+                    //asm.WriteLine("POP AX");
+                    asm.WriteLine("CALL PRINT_NUM");
                 }
             }
 
@@ -1011,6 +1022,7 @@ namespace Semantica
                 stack.Push(getValor(getContenido()));
                 // Requerimiento 3.a 
                 //pasamos al siguiente token
+                asm.WriteLine("PUSH AX");
                 match(Tipos.Identificador);
             }
             else
@@ -1051,7 +1063,7 @@ namespace Semantica
                     //          el valor equivalente en casteo es un 0
                     //llamamos al metodo convertir
                     float valor = stack.Pop();
-                    asm.WriteLine("POP AX");
+                    //asm.WriteLine("POP AX xd");
                     stack.Push(convertir(valor, casteo));
                     dominante = casteo;
                 }

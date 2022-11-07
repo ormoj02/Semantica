@@ -19,7 +19,7 @@ namespace Semantica
             {
                 Console.WriteLine(e.Message);
             } */
-            /* using (Lenguaje a = new Lenguaje())
+            using (Lenguaje a = new Lenguaje())
             {
                 try
                 {
@@ -34,11 +34,13 @@ namespace Semantica
                 {
                     Console.Write(e.Message);
                 }
-            } */
+            }
+
+            /* 
             Lenguaje a = new Lenguaje();
             a.Programa();
             a.cerrar();
-
+            */
 
         }
 

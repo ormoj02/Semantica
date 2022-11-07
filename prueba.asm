@@ -1,5 +1,5 @@
 ;Archivo: prueba.cpp
-;Fecha: 07/11/2022 08:36:22 a. m.
+;Fecha: 07/11/2022 11:24:42 a. m.
 #make_COM#
 include emu8086.inc
 ORG 100h
@@ -20,18 +20,14 @@ ORG 100h
 	 i DW 0
 	 j DW 0
 	 a1 DW 0
-MOV AX, 1
+MOV AX, 257
 PUSH AX
-MOV AX, 1
-PUSH AX
-POP BX
 POP AX
-CMP AX, BX
-JNE if1
-PRINTN "True"
-JMP else1
-if1:
-PRINTN "False"
-else1:
+MOV AH, 0
+MOV a1, AX
+PRINT"Hola mundo"
+PRINT"Hola mundo"
 RET
+DEFINE_PRINT_NUM
+DEFINE_PRINT_NUM_UNS
 DEFINE_SCAN_NUM
