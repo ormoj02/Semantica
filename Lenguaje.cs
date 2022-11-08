@@ -16,22 +16,22 @@ using System.Collections.Generic;
 //  x b) Considerar el inciso b y c para el for
 //  x c) Correcto funcionamiento del ciclo while y do while
 //Requerimiento 3:
-//  X a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
+//  x a) Considerar las variables y los casteos en las expresiones matematicas en ensamblador
 //  x b) Considerar el residuo de la division en assembler
 //  x c) Programar el printf y scanf en assembler
 //Requerimiento 4:
 //  x a) Programar el else en assembler
-//  b) Programar el for en assembler
+//  x b) Programar el for en assembler
 //Requerimiento 5:
-//  a) Programar el while en assembler
-//  b) Programar el do while en assembler
+//  x a) Programar el while en assembler
+//  x b) Programar el do while en assembler
 namespace Semantica
 {
     public class Lenguaje : Sintaxis, IDisposable
     {
         public void Dispose()
         {
-            Console.WriteLine("\nDestructor :3");
+            Console.WriteLine("\nFinalizador");
         }
 
 
@@ -41,6 +41,9 @@ namespace Semantica
         Variable.TipoDato dominante;
         int cIf;
         int cFor;
+        int cWhile;
+        int cDoWhile;
+        string incrementosASM = "";
 
         public Lenguaje()
         {
@@ -210,73 +213,73 @@ namespace Semantica
             match("main");
             match("(");
             match(")");
-            BloqueInstrucciones(true);
+            BloqueInstrucciones(true, true);
         }
         //Bloque de instrucciones -> {listaIntrucciones?}
-        private void BloqueInstrucciones(bool evaluacion)
+        private void BloqueInstrucciones(bool evaluacion, bool imprimir)
         {
             match("{");
             if (getContenido() != "}")
             {
-                ListaInstrucciones(evaluacion);
+                ListaInstrucciones(evaluacion, imprimir);
             }
             match("}");
         }
 
         //ListaInstrucciones -> Instruccion ListaInstrucciones?
-        private void ListaInstrucciones(bool evaluacion)
+        private void ListaInstrucciones(bool evaluacion, bool imprimir)
         {
-            Instruccion(evaluacion);
+            Instruccion(evaluacion, imprimir);
             if (getContenido() != "}")
             {
-                ListaInstrucciones(evaluacion);
+                ListaInstrucciones(evaluacion, imprimir);
             }
         }
 
         //ListaInstruccionesCase -> Instruccion ListaInstruccionesCase?
-        private void ListaInstruccionesCase(bool evaluacion)
+        private void ListaInstruccionesCase(bool evaluacion, bool imprimir)
         {
-            Instruccion(evaluacion);
+            Instruccion(evaluacion, imprimir);
             if (getContenido() != "case" && getContenido() != "break" && getContenido() != "default" && getContenido() != "}")
             {
-                ListaInstruccionesCase(evaluacion);
+                ListaInstruccionesCase(evaluacion, imprimir);
             }
         }
 
         //Instruccion -> Printf | Scanf | If | While | do while | For | Switch | Asignacion
-        private void Instruccion(bool evaluacion)
+        private void Instruccion(bool evaluacion, bool imprimir)
         {
             if (getContenido() == "printf")
             {
-                Printf(evaluacion);
+                Printf(evaluacion, imprimir);
             }
             else if (getContenido() == "scanf")
             {
-                Scanf(evaluacion);
+                Scanf(evaluacion, imprimir);
             }
             else if (getContenido() == "if")
             {
-                If(evaluacion);
+                If(evaluacion, imprimir);
             }
             else if (getContenido() == "while")
             {
-                While(evaluacion);
+                While(evaluacion, imprimir);
             }
             else if (getContenido() == "do")
             {
-                Do(evaluacion);
+                Do(evaluacion, imprimir);
             }
             else if (getContenido() == "for")
             {
-                For(evaluacion);
+                For(evaluacion, imprimir);
             }
             else if (getContenido() == "switch")
             {
-                Switch(evaluacion);
+                Switch(evaluacion, imprimir);
             }
             else
             {
-                Asignacion(evaluacion);
+                Asignacion(evaluacion, imprimir);
             }
         }
 
@@ -304,7 +307,7 @@ namespace Semantica
         }
 
         //Asignacion -> identificador = cadena | Expresion;
-        private void Asignacion(bool evaluacion)
+        private void Asignacion(bool evaluacion, bool imprimir)
         {
             //guardamos el nombre de la variable
             string nombre = getContenido();
@@ -323,8 +326,11 @@ namespace Semantica
                 dominante = Variable.TipoDato.Char;
                 //Requerimiento 1.b
                 //Agregamos los incrementos a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
-                modVariable(nombre, Incremento(nombre, evaluacion));
-
+                modVariable(nombre, Incremento(nombre, evaluacion, imprimir));
+                if (imprimir)
+                {
+                    asm.WriteLine(incrementosASM);
+                }
                 match(";");
                 //Req 1.c
             }
@@ -336,12 +342,16 @@ namespace Semantica
                 match(Tipos.Asignacion);
                 dominante = Variable.TipoDato.Char;
                 //Console.WriteLine("Dominante: " + dominante);
-                Expresion();
+                Expresion(imprimir);
                 match(";");
 
                 //hacemos el pop     
                 float resultado = stack.Pop();
-                asm.WriteLine("POP AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP AX");
+                }
+
                 log.Write("= " + resultado);
                 log.WriteLine();
                 //Console.WriteLine("Evalua Numero: " + evaluaNumero(resultado));
@@ -362,29 +372,47 @@ namespace Semantica
                 {
                     throw new Error("Error de semantica: no podemos asignar un valor de tipo <" + dominante + "> a una variable de tipo <" + getTipo(nombre) + "> en la linea: " + linea, log);
                 }
-                if(getTipo(nombre) == Variable.TipoDato.Char)
+                if (getTipo(nombre) == Variable.TipoDato.Char)
                 {
-                    asm.WriteLine("MOV AH, 0");
-                }
+                    if (imprimir)
+                    {
+                        asm.WriteLine("MOV AH, 0");
+                    }
 
-                asm.WriteLine("MOV " + nombre + ", AX");
+                }
+                if (imprimir)
+                {
+                    asm.WriteLine("MOV " + nombre + ", AX");
+                }
 
             }
         }
 
         //While -> while(Condicion) bloque de instrucciones | instruccion
-        private void While(bool evaluacion)
+        private void While(bool evaluacion, bool imprimir)
         {
+            
+            if(imprimir)
+            {
+                cWhile++;
+            }
+            string etiquetaWhileInicio = "whileInicio" + cWhile+":";
+            string etiquetaWhileFin = "whileFin" + cWhile+":";
             match("while");
-
             match("(");
+
             bool validarWhile;
             int posicionWhile = posicion;
             int lineaWhile = linea;
             string variable = getContenido();
             do
             {
-                validarWhile = Condicion("");
+                if (imprimir)
+                {
+                    asm.WriteLine(etiquetaWhileInicio);
+                }
+
+                validarWhile = Condicion(etiquetaWhileFin, imprimir);
                 if (!evaluacion)
                 {
                     validarWhile = false;
@@ -397,22 +425,22 @@ namespace Semantica
                 {
                     if (validarWhile)
                     {
-                        BloqueInstrucciones(evaluacion);
+                        BloqueInstrucciones(evaluacion, imprimir);
                     }
                     else
                     {
-                        BloqueInstrucciones(false);
+                        BloqueInstrucciones(false, imprimir);
                     }
                 }
                 else
                 {
                     if (validarWhile)
                     {
-                        Instruccion(evaluacion);
+                        Instruccion(evaluacion, imprimir);
                     }
                     else
                     {
-                        Instruccion(false);
+                        Instruccion(false, imprimir);
                     }
                 }
                 if (validarWhile)
@@ -423,16 +451,28 @@ namespace Semantica
                     NextToken();
 
                 }
+                if(imprimir)
+                {
+                    asm.WriteLine("JMP " + etiquetaWhileInicio);
+                    asm.WriteLine(etiquetaWhileFin);
+                }
+                imprimir = false;
             } while (validarWhile);
 
 
         }
 
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
-        private void Do(bool evaluacion)
+        private void Do(bool evaluacion, bool imprimir)
         {
+            if(imprimir)
+            {
+                cDoWhile++;
+            }
+            string etiquetaDoWhileInicio = "doWhileInicio" + cDoWhile + ":";
+            string etiquetaDoWhileFin = "doWhileFin" + cDoWhile + ":";
             bool validarDo = evaluacion;
-            string variable;
+            //string variable;
             if (!evaluacion)
             {
                 validarDo = false;
@@ -442,19 +482,23 @@ namespace Semantica
             int lineaDo = linea;
             do
             {
+                if (imprimir)
+                {
+                    asm.WriteLine(etiquetaDoWhileInicio);
+                }
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(evaluacion);
+                    BloqueInstrucciones(evaluacion, imprimir);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(evaluacion, imprimir);
                 }
                 match("while");
                 match("(");
-                variable = getContenido();
+                //variable = getContenido();
                 //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
-                validarDo = Condicion("");
+                validarDo = Condicion(etiquetaDoWhileFin, imprimir);
                 if (!evaluacion)
                 {
                     validarDo = false;
@@ -466,6 +510,13 @@ namespace Semantica
                     setPosicion(posicion);
                     NextToken();
                 }
+                if (imprimir)
+                {
+                    asm.WriteLine("JMP " + etiquetaDoWhileInicio);
+                    asm.WriteLine(etiquetaDoWhileFin);
+                }
+                imprimir = false;
+
             } while (validarDo);
 
 
@@ -473,14 +524,18 @@ namespace Semantica
             match(";");
         }
         //For -> for(Asignacion Condicion; Incremento) BloqueInstruccones | Intruccion 
-        private void For(bool evaluacion)
+        private void For(bool evaluacion, bool imprimir)
         {
+            if (imprimir)
+            {
+                cFor++;
+            }
             string etiquetaInicioFor = "inicioFor" + cFor;
-            string etiquetaFinFor = "finFor" + cFor++;
-            asm.WriteLine(etiquetaInicioFor + ":");
+            string etiquetaFinFor = "finFor" + cFor;
+
             match("for");
             match("(");
-            Asignacion(evaluacion);
+            Asignacion(evaluacion, imprimir);
             //Requerimiento 4.- Si la condicion no es booleana levanta la excepcion
             float valor = 0;
             bool validarFor;
@@ -491,7 +546,11 @@ namespace Semantica
             //b) Agregar un ciclo while despues de validar el for, que se ejecute mientras la condicion sea verdadera
             do
             {
-                validarFor = Condicion("");
+                if (imprimir)
+                {
+                    asm.WriteLine(etiquetaInicioFor + ":");
+                }
+                validarFor = Condicion(etiquetaFinFor, imprimir);
                 if (!evaluacion)
                 {
                     validarFor = false;
@@ -500,17 +559,17 @@ namespace Semantica
 
                 //requerimiento 1.d
                 match(Tipos.Identificador);
-                valor = Incremento(variable, evaluacion);
+                valor = Incremento(variable, evaluacion, imprimir);
 
 
                 match(")");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(validarFor);
+                    BloqueInstrucciones(validarFor, imprimir);
                 }
                 else
                 {
-                    Instruccion(validarFor);
+                    Instruccion(validarFor, imprimir);
                 }
                 if (validarFor)
                 {
@@ -521,8 +580,14 @@ namespace Semantica
                     //al finalizar el for se ejecuta el incremento
                     modVariable(getContenido(), valor);
                 }
+                if (imprimir)
+                {
+                    asm.WriteLine(incrementosASM);
+                    asm.WriteLine("JMP " + etiquetaInicioFor);
+                    asm.WriteLine(etiquetaFinFor + ":");
+                }
+                imprimir = false;
             } while (validarFor);
-            asm.WriteLine(etiquetaFinFor + ":");
             //c)Regresar a la posicion de lectura del archivo de texto
             //d) sacar otro tokencon el metodo nextToken(
         }
@@ -533,7 +598,7 @@ namespace Semantica
         }
 
         //Incremento -> Identificador ++ | --
-        /* private void Incremento(bool evaluacion)
+        /* private void Incremento(bool evaluacion, bool imprimir)
         {
 
             string variable = getContenido();
@@ -548,7 +613,7 @@ namespace Semantica
                 match("++");
 
                 //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
-                if (evaluacion)
+                if (evaluacion, imprimir)
                 {
 
                     modVariable(variable, getValor(variable) + 1);
@@ -559,7 +624,7 @@ namespace Semantica
             {
                 match("--");
                 //si la variable evaluacion es verdadera entonces se modifica el valor de la variable
-                if (evaluacion)
+                if (evaluacion, imprimir)
                 {
 
                     modVariable(variable, getValor(variable) - 1);
@@ -567,7 +632,7 @@ namespace Semantica
 
             }
         } */
-        private float Incremento(string variable, bool evaluacion)
+        private float Incremento(string variable, bool evaluacion, bool imprimir)
         {
             //variable = getContenido();
             //Requerimiento 2.- Si no existe la variable levanta la excepcion
@@ -587,6 +652,10 @@ namespace Semantica
             if (getContenido() == "++")
             {
                 match("++");
+                if (imprimir)
+                {
+                    incrementosASM = "INC " + variable;
+                }
                 if (evaluacion)
                 {
                     nuevoValor = getValor(variable) + 1;
@@ -598,6 +667,10 @@ namespace Semantica
                 match("--");
                 if (evaluacion)
                 {
+                    if (imprimir)
+                    {
+                        incrementosASM = "DEC " + variable;
+                    }
                     nuevoValor = getValor(variable) - 1;
                 }
 
@@ -605,11 +678,16 @@ namespace Semantica
             else if (getContenido() == "+=")
             {
                 match("+=");
-                Expresion();
+                Expresion(imprimir);
                 incremento = stack.Pop();
 
                 if (evaluacion)
                 {
+                    if (imprimir)
+                    {
+                        incrementosASM = "POP AX";
+                        incrementosASM += "\nADD " + variable + ", AX";
+                    }
                     nuevoValor = getValor(variable) + incremento;
                 }
 
@@ -617,12 +695,17 @@ namespace Semantica
             else if (getContenido() == "-=")
             {
                 match("-=");
-                Expresion();
+                Expresion(imprimir);
 
                 incremento = stack.Pop();
 
                 if (evaluacion)
                 {
+                    if (imprimir)
+                    {
+                        incrementosASM = "POP AX";
+                        incrementosASM += "\nSUB " + variable + ", AX";
+                    }
                     nuevoValor = getValor(variable) - incremento;
                 }
 
@@ -630,12 +713,21 @@ namespace Semantica
             else if (getContenido() == "*=")
             {
                 match("*=");
-                Expresion();
+                Expresion(imprimir);
 
                 incremento = stack.Pop();
 
+                if (imprimir)
+                {
+                    incrementosASM = "POP AX";
+                    incrementosASM += "\nMOV BX, " + variable;
+                    incrementosASM += "\nMUL BX";
+                    incrementosASM += "\nMOV " + variable + ", AX";
+
+                }
                 if (evaluacion)
                 {
+
                     nuevoValor = getValor(variable) * incremento;
                 }
 
@@ -643,12 +735,21 @@ namespace Semantica
             else if (getContenido() == "/=")
             {
                 match("/=");
-                Expresion();
+                Expresion(imprimir);
 
                 incremento = stack.Pop();
 
+                if (imprimir)
+                {
+                    incrementosASM = "POP BX";
+                    incrementosASM += "\nMOV AX, " + variable;
+                    incrementosASM += "\nDIV BX ";
+                    incrementosASM += "\nMOV " + variable + ", AX";
+                }
+
                 if (evaluacion)
                 {
+
                     nuevoValor = getValor(variable) / incremento;
                 }
 
@@ -656,12 +757,20 @@ namespace Semantica
             else if (getContenido() == "%=")
             {
                 match("%=");
-                Expresion();
+                Expresion(imprimir);
 
                 incremento = stack.Pop();
 
+                if (imprimir)
+                {
+                    incrementosASM = "POP BX";
+                    incrementosASM += "\nMOV AX, " + variable;
+                    incrementosASM += "\nDIV BX ";
+                    incrementosASM += "\nMOV " + variable + ", DX";
+                }
                 if (evaluacion)
                 {
+
                     nuevoValor = getValor(variable) % incremento;
                 }
 
@@ -678,41 +787,47 @@ namespace Semantica
         }
 
         //Switch -> switch (Expresion) {Lista de casos} | (default: )
-        private void Switch(bool evaluacion)
+        private void Switch(bool evaluacion, bool imprimir)
         {
             match("switch");
             match("(");
-            Expresion();
+            Expresion(imprimir);
             stack.Pop();
-            asm.WriteLine("POP AX");
+            if (imprimir)
+            {
+                asm.WriteLine("POP AX");
+            }
             match(")");
             match("{");
-            ListaDeCasos(evaluacion);
+            ListaDeCasos(evaluacion, imprimir);
             if (getContenido() == "default")
             {
                 match("default");
                 match(":");
                 if (getContenido() == "{")
                 {
-                    BloqueInstrucciones(evaluacion);
+                    BloqueInstrucciones(evaluacion, imprimir);
                 }
                 else
                 {
-                    Instruccion(evaluacion);
+                    Instruccion(evaluacion, imprimir);
                 }
             }
             match("}");
         }
 
         //ListaDeCasos -> case Expresion: listaInstruccionesCase (break;)? (ListaDeCasos)?
-        private void ListaDeCasos(bool evaluacion)
+        private void ListaDeCasos(bool evaluacion, bool imprimir)
         {
             match("case");
-            Expresion();
+            Expresion(imprimir);
             stack.Pop();
-            asm.WriteLine("POP AX");
+            if (imprimir)
+            {
+                asm.WriteLine("POP AX");
+            }
             match(":");
-            ListaInstruccionesCase(evaluacion);
+            ListaInstruccionesCase(evaluacion, imprimir);
             if (getContenido() == "break")
             {
                 match("break");
@@ -720,54 +835,80 @@ namespace Semantica
             }
             if (getContenido() == "case")
             {
-                ListaDeCasos(evaluacion);
+                ListaDeCasos(evaluacion, imprimir);
             }
         }
 
         //Condicion -> Expresion operador relacional Expresion
-        private bool Condicion(string etiqueta)
+        private bool Condicion(string etiqueta, bool imprimir)
         {
-            Expresion();
+            Expresion(imprimir);
             string operador = getContenido();
             match(Tipos.OperadorRelacional);
-            Expresion();
+            Expresion(imprimir);
             float e2 = stack.Pop();
-            asm.WriteLine("POP BX");
             float e1 = stack.Pop();
-            asm.WriteLine("POP AX");
-            asm.WriteLine("CMP AX, BX");
+            if (imprimir)
+            {
+                asm.WriteLine("POP BX");
+                asm.WriteLine("POP AX");
+                asm.WriteLine("CMP AX, BX");
+            }
+
             switch (operador)
             {
                 case ">":
-                    asm.WriteLine("JLE " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JLE " + etiqueta);
+                    }
                     return e1 > e2;
                 case "<":
-                    asm.WriteLine("JGE " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JGE " + etiqueta);
+                    }
                     return e1 < e2;
                 case ">=":
-                    asm.WriteLine("JL " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JL " + etiqueta);
+                    }
                     return e1 >= e2;
                 case "<=":
-                    asm.WriteLine("JG " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JG " + etiqueta);
+                    }
                     return e1 <= e2;
                 case "==":
-                    asm.WriteLine("JNE " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JNE " + etiqueta);
+                    }
                     return e1 == e2;
                 default:
-                    asm.WriteLine("JE " + etiqueta);
+                    if (imprimir)
+                    {
+                        asm.WriteLine("JE " + etiqueta);
+                    }
                     return e1 != e2;
             }
         }
 
         //If -> if(Condicion) bloque de instrucciones (else bloque de instrucciones)?
-        private void If(bool evaluacion)
+        private void If(bool evaluacion, bool imprimir)
         {
-            string etiquetaIf = "if" + ++cIf;
+            if (imprimir)
+            {
+                cIf++;
+            }
+            string etiquetaIf = "if" + cIf;
             string etiquetaElse = "else" + cIf;
             match("if");
             match("(");
             //Requerimiento 4
-            bool validarIf = Condicion(etiquetaIf);
+            bool validarIf = Condicion(etiquetaIf, imprimir);
             if (!evaluacion)
             {
                 validarIf = false;
@@ -776,14 +917,17 @@ namespace Semantica
             match(")");
             if (getContenido() == "{")
             {
-                BloqueInstrucciones(validarIf);
+                BloqueInstrucciones(validarIf, imprimir);
             }
             else
             {
-                Instruccion(validarIf);
+                Instruccion(validarIf, imprimir);
             }
-            asm.WriteLine("JMP " + etiquetaElse);
-            asm.WriteLine(etiquetaIf + ":");
+            if (imprimir)
+            {
+                asm.WriteLine("JMP " + etiquetaElse);
+                asm.WriteLine(etiquetaIf + ":");
+            }
             if (getContenido() == "else")
             {
 
@@ -793,11 +937,11 @@ namespace Semantica
                 {
                     if (evaluacion)
                     {
-                        BloqueInstrucciones(!validarIf);
+                        BloqueInstrucciones(!validarIf, imprimir);
                     }
                     else
                     {
-                        BloqueInstrucciones(false);
+                        BloqueInstrucciones(false, imprimir);
                     }
 
                 }
@@ -805,20 +949,23 @@ namespace Semantica
                 {
                     if (evaluacion)
                     {
-                        Instruccion(!validarIf);
+                        Instruccion(!validarIf, imprimir);
                     }
                     else
                     {
-                        Instruccion(false);
+                        Instruccion(false, imprimir);
                     }
                 }
 
             }
-            asm.WriteLine(etiquetaElse + ":");
+            if (imprimir)
+            {
+                asm.WriteLine(etiquetaElse + ":");
+            }
         }
 
         //Printf -> printf(cadena|expresion);
-        private void Printf(bool evaluacion)
+        private void Printf(bool evaluacion, bool imprimir)
         {
 
             match("printf");
@@ -827,36 +974,61 @@ namespace Semantica
             //revisamos si es una cadena
             if (getClasificacion() == Tipos.Cadena)
             {
-                
                 string cadena = getContenido();
-                cadena = cadena.Replace("\\t", string.Empty);
-                cadena = cadena.Replace("\\n", string.Empty);
-                cadena = cadena.Replace("\"", string.Empty);
-
-                asm.WriteLine("PRINTN \"" + cadena + "\"");
 
                 if (evaluacion)
                 {
                     //cambiamos las comillas por los datos correctos
-                    setContenido(getContenido().Replace("\\t", "     "));
-                    setContenido(getContenido().Replace("\\n", "\n"));
                     setContenido(getContenido().Replace("\"", string.Empty));
+                    setContenido(getContenido().Replace("\\t", "     "));
+                    cadena = getContenido();
+                    setContenido(getContenido().Replace("\\n", "\n"));
+                    
                     //escribe contenido
                     Console.Write(getContenido());
+                }
+                if (imprimir)
+                {
+                    if(cadena.Contains("\\n"))
+                    {
+                        string [] subCadena = cadena.Split("\\n" );
+                        for (int i = 0; i < subCadena.Length; i++)
+                        {
+                            if (i == subCadena.Length - 1)
+                            {
+                                asm.WriteLine("PRINT \"" + subCadena[i]+"\"");
+                            }
+                            else
+                            {
+                                asm.WriteLine("PRINTN \"" + subCadena[i]+"\"");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        asm.WriteLine("PRINT \"" + cadena + "\"");
+                    }
                 }
                 match(Tipos.Cadena);
             }
             else
             {
-                Expresion();
+                Expresion(imprimir);
                 float resultado = stack.Pop();
-                asm.WriteLine("POP AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP AX");
+                }
                 if (evaluacion)
                 {
                     Console.Write(resultado);
                     //Codigo assembler para imprimir una variable
                     //asm.WriteLine("POP AX");
-                    asm.WriteLine("CALL PRINT_NUM");
+                    if (imprimir)
+                    {
+                        asm.WriteLine("CALL PRINT_NUM");
+
+                    }
                 }
             }
 
@@ -866,7 +1038,7 @@ namespace Semantica
         }
 
         //Scanf -> scanf(cadena, &identificador);
-        private void Scanf(bool evaluacion)
+        private void Scanf(bool evaluacion, bool imprimir)
         {
             match("scanf");
             match("(");
@@ -896,9 +1068,12 @@ namespace Semantica
                     //modVariable(getContenido(), 0);
                     throw new Error("Error: No se puede asignar un valor de tipo cadena a una variable de tipo numerico " + getContenido() + " en la linea: " + linea, log);
                 }
+                if (imprimir)
+                {
+                    asm.WriteLine("CALL SCAN_NUM");
+                    asm.WriteLine("MOV " + getContenido() + ", CX");
 
-                asm.WriteLine("CALL SCAN_NUM");
-                asm.WriteLine("MOV " + getContenido() + ", CX");
+                }
                 //modVariable(getContenido(), float.Parse(val));
 
             }
@@ -909,58 +1084,76 @@ namespace Semantica
         }
 
         //Expresion -> Termino MasTermino
-        private void Expresion()
+        private void Expresion(bool imprimir)
         {
-            Termino();
-            MasTermino();
+            Termino(imprimir);
+            MasTermino(imprimir);
         }
         //MasTermino -> (OperadorTermino Termino)?
-        private void MasTermino()
+        private void MasTermino(bool imprimir)
         {
             if (getClasificacion() == Tipos.OperadorTermino)
             {
                 string operador = getContenido();
                 match(Tipos.OperadorTermino);
-                Termino();
+                Termino(imprimir);
                 log.Write(operador + " ");
                 float n1 = stack.Pop();
-                asm.WriteLine("POP BX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP BX");
+                }
                 float n2 = stack.Pop();
-                asm.WriteLine("POP AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP AX");
+                }
                 switch (operador)
                 {
                     case "+":
                         stack.Push(n2 + n1);
-                        asm.WriteLine("ADD AX, BX");
-                        asm.WriteLine("PUSH AX");
+                        if (imprimir)
+                        {
+                            asm.WriteLine("ADD AX, BX");
+                            asm.WriteLine("PUSH AX");
+                        }
                         break;
                     case "-":
                         stack.Push(n2 - n1);
-                        asm.WriteLine("SUB AX, BX");
-                        asm.WriteLine("PUSH AX");
+                        if (imprimir)
+                        {
+                            asm.WriteLine("SUB AX, BX");
+                            asm.WriteLine("PUSH AX");
+                        }
                         break;
                 }
             }
         }
         //Termino -> Factor PorFactor
-        private void Termino()
+        private void Termino(bool imprimir)
         {
-            Factor();
-            PorFactor();
+            Factor(imprimir);
+            PorFactor(imprimir);
         }
         //PorFactor -> (OperadorFactor Factor)? 
-        private void PorFactor()
+        private void PorFactor(bool imprimir)
         {
             if (getClasificacion() == Tipos.OperadorFactor)
             {
                 string operador = getContenido();
                 match(Tipos.OperadorFactor);
-                Factor();
+                Factor(imprimir);
                 log.Write(operador + " ");
                 float n1 = stack.Pop();
-                asm.WriteLine("POP BX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP BX");
+                }
                 float n2 = stack.Pop();
-                asm.WriteLine("POP AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("POP AX");
+                }
 
 
 
@@ -969,28 +1162,37 @@ namespace Semantica
                 {
                     case "*":
                         stack.Push(n2 * n1);
-                        asm.WriteLine("MUL BX");
+                        if (imprimir)
+                        {
+                            asm.WriteLine("MUL BX");
+                            asm.WriteLine("PUSH AX");
+                        }
                         //en AX se guarda el resultado de multiplicar AL y el otro operador
                         //en este caso lo guardamos en BX
-                        asm.WriteLine("PUSH AX");
                         break;
                     case "/":
                         stack.Push(n2 / n1);
-                        asm.WriteLine("DIV BX");
+                        if (imprimir)
+                        {
+                            asm.WriteLine("DIV BX");
+                            asm.WriteLine("PUSH AX");
+                        }
                         //Se guarda el resultado de la division en AL y lo metemos al stack
-                        asm.WriteLine("PUSH AX");
                         break;
                     case "%":
                         stack.Push(n2 % n1);
-                        asm.WriteLine("DIV BX");
+                        if (imprimir)
+                        {
+                            asm.WriteLine("DIV BX");
+                            asm.WriteLine("PUSH DX");
+                        }
                         //Se guarda el resto de la division en AH y lo metemos al stack
-                        asm.WriteLine("PUSH DX");
                         break;
                 }
             }
         }
         //Factor -> numero | identificador | (Expresion)
-        private void Factor()
+        private void Factor(bool imprimir)
         {
             if (getClasificacion() == Tipos.Numero)
             {
@@ -1000,8 +1202,12 @@ namespace Semantica
                     dominante = evaluaNumero(float.Parse(getContenido()));
                 }
                 stack.Push(float.Parse(getContenido()));
-                asm.WriteLine("MOV AX, " + getContenido());
-                asm.WriteLine("PUSH AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("MOV AX, " + getContenido());
+                    asm.WriteLine("PUSH AX");
+
+                }
                 match(Tipos.Numero);
             }
             else if (getClasificacion() == Tipos.Identificador)
@@ -1017,12 +1223,20 @@ namespace Semantica
                 {
                     dominante = getTipo(getContenido());
                 }
+                if (imprimir)
+                {
+                    asm.WriteLine("MOV AX, " + getContenido());
 
+                }
                 //metemos la variable dentro del stack para hacer operaciones 
                 stack.Push(getValor(getContenido()));
                 // Requerimiento 3.a 
                 //pasamos al siguiente token
-                asm.WriteLine("PUSH AX");
+                if (imprimir)
+                {
+                    asm.WriteLine("PUSH AX");
+
+                }
                 match(Tipos.Identificador);
             }
             else
@@ -1050,7 +1264,7 @@ namespace Semantica
                     match(")");
                     match("(");
                 }
-                Expresion();
+                Expresion(imprimir);
                 match(")");
                 if (huboCasteo)
                 {
