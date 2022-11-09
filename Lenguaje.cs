@@ -326,9 +326,11 @@ namespace Semantica
                 dominante = Variable.TipoDato.Char;
                 //Requerimiento 1.b
                 //Agregamos los incrementos a++, a--, a+=1, a-=1, a*=1, a/=1, a%=1
+                
                 modVariable(nombre, Incremento(nombre, evaluacion, imprimir));
                 if (imprimir)
                 {
+                    
                     asm.WriteLine(incrementosASM);
                 }
                 match(";");
@@ -357,7 +359,6 @@ namespace Semantica
                 //Console.WriteLine("Evalua Numero: " + evaluaNumero(resultado));
                 if (dominante < evaluaNumero(resultado))
                 {
-                    Console.WriteLine("Dominante ahora cambiara de valor al mayor");
                     dominante = evaluaNumero(resultado);
                 }
 
@@ -391,13 +392,13 @@ namespace Semantica
         //While -> while(Condicion) bloque de instrucciones | instruccion
         private void While(bool evaluacion, bool imprimir)
         {
-            
-            if(imprimir)
+
+            if (imprimir)
             {
                 cWhile++;
             }
-            string etiquetaWhileInicio = "whileInicio" + cWhile+":";
-            string etiquetaWhileFin = "whileFin" + cWhile+":";
+            string etiquetaWhileInicio = "whileInicio" + cWhile + ":";
+            string etiquetaWhileFin = "whileFin" + cWhile + ":";
             match("while");
             match("(");
 
@@ -451,7 +452,7 @@ namespace Semantica
                     NextToken();
 
                 }
-                if(imprimir)
+                if (imprimir)
                 {
                     asm.WriteLine("JMP " + etiquetaWhileInicio);
                     asm.WriteLine(etiquetaWhileFin);
@@ -465,7 +466,7 @@ namespace Semantica
         //Do -> do bloque de instrucciones | intruccion while(Condicion)
         private void Do(bool evaluacion, bool imprimir)
         {
-            if(imprimir)
+            if (imprimir)
             {
                 cDoWhile++;
             }
@@ -560,7 +561,7 @@ namespace Semantica
                 //requerimiento 1.d
                 match(Tipos.Identificador);
                 valor = Incremento(variable, evaluacion, imprimir);
-
+                string auxIncrementoASM = incrementosASM;
 
                 match(")");
                 if (getContenido() == "{")
@@ -582,7 +583,7 @@ namespace Semantica
                 }
                 if (imprimir)
                 {
-                    asm.WriteLine(incrementosASM);
+                    asm.WriteLine(auxIncrementoASM);
                     asm.WriteLine("JMP " + etiquetaInicioFor);
                     asm.WriteLine(etiquetaFinFor + ":");
                 }
@@ -683,13 +684,13 @@ namespace Semantica
 
                 if (evaluacion)
                 {
-                    if (imprimir)
+                    nuevoValor = getValor(variable) + incremento;
+                }
+                if (imprimir)
                     {
                         incrementosASM = "POP AX";
                         incrementosASM += "\nADD " + variable + ", AX";
                     }
-                    nuevoValor = getValor(variable) + incremento;
-                }
 
             }
             else if (getContenido() == "-=")
@@ -701,13 +702,13 @@ namespace Semantica
 
                 if (evaluacion)
                 {
-                    if (imprimir)
+                    nuevoValor = getValor(variable) - incremento;
+                }
+                if (imprimir)
                     {
                         incrementosASM = "POP AX";
                         incrementosASM += "\nSUB " + variable + ", AX";
                     }
-                    nuevoValor = getValor(variable) - incremento;
-                }
 
             }
             else if (getContenido() == "*=")
@@ -975,38 +976,41 @@ namespace Semantica
             if (getClasificacion() == Tipos.Cadena)
             {
                 string cadena = getContenido();
+                setContenido(getContenido().Replace("\'", string.Empty));
+                setContenido(getContenido().Replace("\"", string.Empty));
 
+                setContenido(getContenido().Replace("\\t", "     "));
+                cadena = getContenido();
+                setContenido(getContenido().Replace("\\n", "\n"));
                 if (evaluacion)
                 {
                     //cambiamos las comillas por los datos correctos
-                    setContenido(getContenido().Replace("\"", string.Empty));
-                    setContenido(getContenido().Replace("\\t", "     "));
-                    cadena = getContenido();
-                    setContenido(getContenido().Replace("\\n", "\n"));
-                    
+
                     //escribe contenido
                     Console.Write(getContenido());
                 }
                 if (imprimir)
                 {
-                    if(cadena.Contains("\\n"))
+                    if (cadena.Contains("\\n"))
                     {
-                        string [] subCadena = cadena.Split("\\n" );
+                        string[] subCadena = cadena.Split("\\n");
                         for (int i = 0; i < subCadena.Length; i++)
                         {
                             if (i == subCadena.Length - 1)
                             {
-                                asm.WriteLine("PRINT \"" + subCadena[i]+"\"");
+                                //Console.WriteLine("Subcadena: "+subCadena[i]+"Hola\n");
+                                asm.WriteLine("PRINT \'" + subCadena[i] + "\'");
                             }
                             else
                             {
-                                asm.WriteLine("PRINTN \"" + subCadena[i]+"\"");
+                                //Console.WriteLine("Subcadena: "+subCadena[i]);
+                                asm.WriteLine("PRINTN \'" + subCadena[i] + "\'");
                             }
                         }
                     }
                     else
                     {
-                        asm.WriteLine("PRINT \"" + cadena + "\"");
+                        asm.WriteLine("PRINT \'" + cadena + "\'");
                     }
                 }
                 match(Tipos.Cadena);
@@ -1021,7 +1025,7 @@ namespace Semantica
                 }
                 if (evaluacion)
                 {
-                    Console.Write(resultado);
+                    Console.Write(resultado);//no borrar
                     //Codigo assembler para imprimir una variable
                     //asm.WriteLine("POP AX");
                     if (imprimir)
